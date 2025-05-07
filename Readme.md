@@ -60,9 +60,9 @@ Autolink is a web application built with Symfony that offers an eco-friendly pla
     ```bash
     symfony server:start
     ```
-    Or alternatively:
+    Or:
     ```bash
-    php -S 127.0.0.1:8000 -t public
+    php bin/console server:start
     ```
 
 ## Usage

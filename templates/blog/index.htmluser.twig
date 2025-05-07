@@ -1,0 +1,234 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create your blog here{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fff !important;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .logo-container img {
+            max-width: 200px;
+            height: auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 40px 0;
+            color: #b5602c;
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .container {
+            width: 90%;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .blog-link {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .blog-card {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: all 0.3s ease-in-out;
+            text-align: center;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .blog-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .blog-card h3 {
+            margin: 10px 0;
+            color: #b5602c;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .blog-card p {
+            font-size: 1em;
+            color: #555;
+            margin: 10px 0;
+        }
+
+        .blog-card .info {
+            font-size: 0.9em;
+            color: #777;
+            opacity: 0.8;
+        }
+
+        .blog-card .actions {
+            margin-top: 15px;
+        }
+
+        .blog-card .actions a {
+            color: #b5602c;
+            text-decoration: none;
+            margin-right: 15px;
+            font-weight: 600;
+            font-size: 1em;
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .blog-card .actions a:hover {
+            color: #d17942;
+        }
+
+        .btn {
+            background-color: #b5602c;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 50px;
+            display: block;
+            width: fit-content;
+            margin: 30px auto;
+            font-size: 1.1em;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #d17942;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .no-records {
+            text-align: center;
+            font-size: 1.2em;
+            color: #777;
+            margin-top: 20px;
+        }
+
+        .active-like {
+            font-weight: bold;
+            color: green;
+        }
+
+        .active-dislike {
+            font-weight: bold;
+            color: red;
+        }
+
+    </style>
+{% endblock %}
+
+{% block body %}
+    <section class="product spad">
+        <div class="container">
+            <div class="row">
+                <!-- Factures List -->
+                <div class="col-lg-9 col-md-7">
+                    <div class="product__discount">
+                        <div class="blog-grid">
+                            {% for blog in blogs %}
+                                <a href="{{ path('app_blog_show', {'id': blog.id}) }}" class="blog-link">
+                                    <div class="blog-card">
+                                        {% if blog.image %}
+                                            <img src="{{ asset('uploads/' ~ blog.image) }}" alt="Blog Image">
+                                        {% else %}
+                                            <img src="{{ asset('uploads/default.jpg') }}" alt="Default Image">
+                                        {% endif %}
+                                        <h3>{{ blog.title }}</h3>
+                                        <p>{{ blog.content|slice(0, 100) }}...</p> 
+                                        <p class="info">
+                                            Published on: {{ blog.publishedDate ? blog.publishedDate|date('Y-m-d') : 'N/A' }}
+                                        </p>
+
+                                        <div class="actions">
+                                            <a href="{{ path('app_comment_by_blog', {'id': blog.id}) }}" onclick="event.stopPropagation();">Comment</a>
+                                            <a href="#" class="like-btn {{ blog.userReaction == 'like' ? 'active-like' : '' }}" 
+                                               data-id="{{ blog.id }}" onclick="event.stopPropagation();">
+                                               👍 <span class="like-count">{{ blog.likes }}</span>
+                                            </a>
+                                            <a href="#" class="dislike-btn {{ blog.userReaction == 'dislike' ? 'active-dislike' : '' }}" 
+                                               data-id="{{ blog.id }}" onclick="event.stopPropagation();">
+                                               👎 <span class="dislike-count">{{ blog.dislikes }}</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </a>
+                            {% else %}
+                                <p class="no-records">No records found</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.like-btn').forEach(button => {
+                button.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    let blogId = this.dataset.id;
+                    let url = "{{ path('app_blog_like', {'id': 'ID'}) }}".replace('ID', blogId);
+                    
+                    fetch(url, { method: 'POST' })
+                        .then(response => response.json())
+                        .then(data => {
+                            this.classList.toggle('active-like', data.reaction === 'like');
+                            this.nextElementSibling.classList.remove('active-dislike');
+                            this.querySelector('.like-count').textContent = data.likes;
+                            this.nextElementSibling.querySelector('.dislike-count').textContent = data.dislikes;
+                        });
+                });
+            });
+
+            document.querySelectorAll('.dislike-btn').forEach(button => {
+                button.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    let blogId = this.dataset.id;
+                    let url = "{{ path('app_blog_dislike', {'id': 'ID'}) }}".replace('ID', blogId);
+                    
+                    fetch(url, { method: 'POST' })
+                        .then(response => response.json())
+                        .then(data => {
+                            this.classList.toggle('active-dislike', data.reaction === 'dislike');
+                            this.previousElementSibling.classList.remove('active-like');
+                            this.querySelector('.dislike-count').textContent = data.dislikes;
+                            this.previousElementSibling.querySelector('.like-count').textContent = data.likes;
+                        });
+                });
+            });
+        });
+    </script>
+{% endblock %}

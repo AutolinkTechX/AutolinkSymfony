@@ -1,0 +1,126 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<section class="featured spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="produit-title">
+                    <h2>Produits à Recycler</h2>
+                </div>
+
+                {# Conteneur pour tri et filtrage alignés en flexbox #}
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    
+                    <div class="sort-options">
+                       
+                        <div class="date-options">
+                            <a href="{{ path('list_materiaux_sorted', { 'order': 'asc' }) }}"
+                               class="{% if order == 'asc' %}active{% endif %}">Date (Plus ancien)</a>
+                            <a href="{{ path('list_materiaux_sorted', { 'order': 'desc' }) }}"
+                               class="{% if order == 'desc' %}active{% endif %}">Date (Plus récent)</a>
+                        </div>
+                    </div>
+                    
+                    
+                    {# Filtrage des statuts à droite #}
+                    <div class="featured__controls">
+                        <ul>
+                            <li>
+                                <a href="{{ path('app_materiaux_liste') }}" 
+                                   class="{% if not statut %}btn btn-primary btn-small{% endif %}">
+                                    Tous
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ path('list_materiaux_by_statut', { 'statut': 'en_attente' }) }}" 
+                                   class="{% if statut == 'en_attente' %}btn btn-primary btn-small{% endif %}">
+                                    En attente
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ path('list_materiaux_by_statut', { 'statut': 'valide' }) }}" 
+                                   class="{% if statut == 'valide' %}btn btn-primary btn-small{% endif %}">
+                                    Validé
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ path('list_materiaux_by_statut', { 'statut': 'refuse' }) }}" 
+                                   class="{% if statut == 'refuse' %}btn btn-primary btn-small{% endif %}">
+                                    refusé
+                                </a>
+                            </li>
+                        </ul>
+                        
+                </div>
+
+                {# Bouton pour ajouter un produit #}
+                <div class="text-right mb-3">
+                    <a href="{{ path('ajouter_materiel_recyclable') }}" class="submit-btn">Ajouter un Produit</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row featured__filter">
+            {% for materiel in materiaux %}
+            <div class="col-lg-3 col-md-4 col-sm-6 mix {{ materiel.statut.value }}">
+                <div class="featured__item">
+                    <div class="featured__item__pic">
+                        {% if materiel.image %}
+                            <img src="{{ asset('/uploads/' ~ materiel.image) }}" alt="{{ materiel.name }}" class="img-fluid" style="max-width: 100%;">
+                        {% else %}
+                            <p>No Image</p>
+                        {% endif %}
+                    </div>
+                    <div class="featured__item__text">
+                        <h6>{{ materiel.name }}</h6>
+                        <p>Type de recyclage : {{ materiel.typeMateriel }}</p>
+                        <p>Description : {{ materiel.description }}</p>
+                        <p>Date de création : {{ materiel.datecreation|date('d/m/Y') }}</p>
+                        <p>Entreprise : {{ materiel.entreprise.getCompanyName() }}</p>
+                        <p><strong>Statut :</strong> {{ materiel.statut.value|trans }}</p>
+                        <div class="featured__item__actions">
+                           
+                            {% if app.user and (materiel.user == app.user or is_granted('ROLE_CLIENT')) and materiel.statut.value != 'refuse' and materiel.statut.value != 'valide' %}
+
+                                <a href="{{ path('materiel_edit', {'id': materiel.id}) }}"><i class="fa fa-edit"></i></a>
+                                <a href="{{ path('materiel_delete', {'id': materiel.id}) }}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet élément ?');"><i class="fa fa-trash"></i></a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% if materiaux is defined and materiaux|length > 1 %}
+        <div class="pagination1">
+            {{ knp_pagination_render(materiaux) }}
+        </div>
+    {% endif %}
+    
+</section>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const options = document.querySelectorAll('.date-options a');
+
+        options.forEach(option => {
+            option.addEventListener('click', function(event) {
+                // Empêche le comportement par défaut si l'option est déjà active
+                if (this.classList.contains('active')) {
+                    event.preventDefault();
+                    
+                    // Désélectionne l'option
+                    this.classList.remove('active');
+                    // Redirige vers la page sans le paramètre de tri
+                    window.location.href = "{{ path('app_materiaux_liste') }}"; // Remplacez par votre route par défaut
+                } else {
+                    // Sélectionne l'option et redirige vers la page avec le paramètre
+                    options.forEach(opt => opt.classList.remove('active')); // Désélectionne les autres
+                    this.classList.add('active');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

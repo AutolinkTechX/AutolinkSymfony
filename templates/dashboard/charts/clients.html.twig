@@ -1,0 +1,44 @@
+<div class="col-md-25">
+    <div class="card p-3">
+        <canvas id="chartDemandesClients"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var ctx = document.getElementById("chartDemandesClients").getContext("2d");
+        var chart = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: {{ demandesParClient|map(row => row.client)|json_encode()|raw }},
+                datasets: [{
+                    label: "Nombre de demandes",
+                    data: {{ demandesParClient|map(row => row.nombreDemandes)|json_encode()|raw }},
+                    backgroundColor: "#e77d4b",
+                    borderColor: "#e77d4b",
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "Histogramme des Demandes par Client",
+                        font: {
+                            size: 16,
+                            weight: "bold"
+                        },
+                        padding: {
+                            bottom: 15
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>

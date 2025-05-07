@@ -1,0 +1,66 @@
+{% extends 'baseEntreprise.html.twig' %}
+
+{% block title %}Calendrier{% endblock %}
+
+{% block content %}
+<div id='calendar'></div>
+
+
+<!-- FullCalendar CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<div id='calendar'></div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            events: '/calendar/events',
+            eventColor: '#3788d8',
+            eventDidMount: function (info) {
+                info.el.style.backgroundColor = info.event.extendedProps.color;
+            }
+        });
+
+        calendar.render();
+
+        // Fonction pour recharger uniquement les événements sans recharger tout le calendrier
+        function refreshCalendar() {
+            $.ajax({
+                url: "/calendar/events",
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    calendar.getEvents().forEach(event => event.remove()); // Supprimer tous les événements actuels
+                    calendar.addEventSource(data); // Ajouter les nouveaux événements
+                },
+                error: function () {
+                    alert("Erreur lors du rechargement du calendrier.");
+                }
+            });
+        }
+
+        // Changer le statut d'un accord via AJAX
+        $(".change-status").click(function () {
+            var accordId = $(this).data("id");
+            var newStatus = $(this).data("status");
+
+            $.ajax({
+                url: "/calendar/update-status",
+                type: "POST",
+                data: { id: accordId, status: newStatus },
+                success: function () {
+                    alert("Statut mis à jour avec succès !");
+                    refreshCalendar(); // Recharger uniquement les événements du calendrier
+                },
+                error: function () {
+                    alert("Erreur lors de la mise à jour du statut.");
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

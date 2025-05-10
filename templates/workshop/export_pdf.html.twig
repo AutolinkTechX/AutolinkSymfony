@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Workshops</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th, td { border: 1px solid #888; padding: 6px; text-align: left; }
+        th { background: #b5602c; color: #fff; }
+    </style>
+</head>
+<body>
+    <h2>Liste des Workshops</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Description</th>
+                <th>Date début</th>
+                <th>Date fin</th>
+                <th>Lieu</th>
+                <th>Places</th>
+                <th>Prix</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for w in workshops %}
+            <tr>
+                <td>{{ w.nom }}</td>
+                <td>{{ w.description }}</td>
+                <td>{{ w.DateDebut ? w.DateDebut|date('d/m/Y H:i') }}</td>
+                <td>{{ w.DateFin ? w.DateFin|date('d/m/Y H:i') }}</td>
+                <td>{{ w.adresse }}</td>
+                <td>{{ w.availablePlaces }}</td>
+                <td>{{ w.price }} TND</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html> 

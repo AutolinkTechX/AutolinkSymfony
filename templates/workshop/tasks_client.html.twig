@@ -1,0 +1,83 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tâches du Workshop{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <h2 class="mb-4" style="color: #b5602c; font-weight: bold; letter-spacing: 1px;">Tâches associées au workshop : <span style="color: #333;">{{ workshop.nom }}</span></h2>
+    <div class="mb-4" style="margin-bottom: 40px !important;">
+        <a href="{{ path('app_workshop_inscrit') }}" class="btn btn-custom">Retour aux workshops</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered shadow" style="background: #fff; border-radius: 18px; overflow: hidden; box-shadow: 0 6px 24px rgba(181,96,44,0.08);">
+            <thead style="background: linear-gradient(90deg, #b5602c 80%, #e6c3a2 100%); color: #fff;">
+                <tr style="font-size: 1.15rem;">
+                    <th style="padding: 16px 18px;">Nom</th>
+                    <th style="padding: 16px 18px;">Description</th>
+                    <th style="padding: 16px 18px;">Date de début</th>
+                    <th style="padding: 16px 18px;">Date de fin</th>
+                    <th style="padding: 16px 18px;">Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                    <tr style="font-size: 1.05rem;">
+                        <td style="font-weight: 600; color: #b5602c; padding: 14px 16px;">{{ task.nom }}</td>
+                        <td style="padding: 14px 16px;">{{ task.description }}</td>
+                        <td style="padding: 14px 16px;">{{ task.DateDebut ? task.DateDebut|date('d/m/Y H:i') : '' }}</td>
+                        <td style="padding: 14px 16px;">{{ task.DateFin ? task.DateFin|date('d/m/Y H:i') : '' }}</td>
+                        <td style="padding: 14px 16px;">
+                            <span class="badge {% if task.status == 'en cours' %}badge-warning{% elseif task.status == 'terminée' %}badge-success{% else %}badge-secondary{% endif %}" style="font-size: 1em; padding: 7px 18px; border-radius: 14px; letter-spacing: 1px;">{{ task.status }}</span>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">Aucune tâche associée à ce workshop.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<style>
+.btn-custom {
+  background-color: #b5602c;
+  border: none;
+  color: white;
+  padding: 10px 24px;
+  font-size: 15px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.btn-custom:hover {
+  background-color: #9a4f25;
+}
+.table thead th {
+  border: none;
+  font-weight: 700;
+  font-size: 1.1em;
+  letter-spacing: 0.5px;
+}
+.table tbody tr:nth-of-type(odd) {
+  background-color: #f8f9fa;
+}
+.table tbody tr:hover {
+  background-color: #f1e6de;
+}
+.badge-warning {
+  background-color: #ffb347;
+  color: #fff;
+}
+.badge-success {
+  background-color: #28a745;
+  color: #fff;
+}
+.badge-secondary {
+  background-color: #6c757d;
+  color: #fff;
+}
+</style>
+{% endblock %} 

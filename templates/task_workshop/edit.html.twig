@@ -1,0 +1,162 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Modifier une tâche {% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/elegant-icons.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/nice-select.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/jquery-ui.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/slicknav.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+
+    <!-- Custom Styling for Buttons and Form -->
+    <style>
+        /* General Form Styling */
+        .form-container {
+            background-color: #f8f9fa; 
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .form-main-title {
+            color: #b5602c;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .section-subtitle {
+            font-size: 1.25rem;
+            color: #b5602c;
+            margin-bottom: 15px;
+        }
+
+        /* Button Styling */
+        .btn-custom {
+            background-color: #b5602c; 
+            border-color: #b5602c;
+            color: #fff;
+            font-weight: bold;
+            padding: 12px 20px;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            margin: 5px;
+            display: inline-block; 
+            width: 48%; 
+            box-sizing: border-box; 
+        }
+
+        .btn-custom:hover {
+            background-color: #9e4e1f;
+            border-color: #9e4e1f;
+            color: #fff;
+        }
+
+        /* Flex layout for buttons */
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        /* Faire en sorte que les boutons aient la même taille */
+        .button-group a,
+        .button-group button {
+            width: 48%; /* Assure que les boutons sont de même taille */
+        }
+
+        .button-group a:first-child {
+            margin-right: 4%; /* Un petit espace entre les deux boutons */
+        }
+
+        /* Input Styling */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control {
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            border-color: #b5602c;
+            box-shadow: 0 0 5px rgba(181, 96, 44, 0.5);
+        }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('assets/js/workshop.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery-ui.min.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.slicknav.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.nice-select.min.js') }}"></script>
+    <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('assets/js/mixitup.min.js') }}"></script>
+    <script src="{{ asset('assets/js/owl.carousel.min.js') }}"></script>
+    <script src="{{ asset('assets/js/main.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+    <section class="product-form-section py-5">
+        <div class="container">
+            <h2 class="form-main-title">Modifier une tâche</h2>
+            <div class="form-container">
+                <h3 class="section-subtitle"><i class="fa fa-edit mr-2"></i> Détails d'une tâche</h3>
+                {{ form_start(form) }}
+                    <div class="form-group">
+                        <label class="input-label"><i class="fa fa-tag mr-2"></i> Nom du tâche</label>
+                        {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="form-group">
+                        <label class="input-label"><i class="fa fa-file-text mr-2"></i> Description</label>
+                        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': '5'}}) }}
+                    </div>
+                    <div class="form-group">
+                        <label class="input-label"><i class="fa fa-calendar mr-2"></i> Date de début</label>
+                        {{ form_widget(form.DateDebut, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="form-group">
+                        <label class="input-label"><i class="fa fa-calendar-check-o mr-2"></i> Date de fin</label>
+                        {{ form_widget(form.DateFin, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="form-group">
+                        <label class="input-label"><i class="fa fa-info-circle mr-2"></i> Statut</label>
+                        {{ form_widget(form.status, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="form-group">
+                        <label class="input-label"><i class="fa fa-wrench mr-2"></i> Workshop</label>
+                        {{ form_widget(form.workshop, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="button-group">
+                        <a href="{{ path('app_task_workshop_index') }}" class="btn-custom">Retour à la liste</a>
+                        <button type="submit" class="btn-custom">Mettre à jour</button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </section>
+{% endblock %}

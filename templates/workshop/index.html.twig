@@ -1,0 +1,184 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Workshop index{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/elegant-icons.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/nice-select.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/jquery-ui.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/slicknav.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+
+    <!-- Custom Styles for Buttons -->
+    <style>
+        .btn-custom {
+            background-color: #b5602c;
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-custom:hover {
+            background-color: #9a4f25;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        .btn-custom:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-custom.btn-sm {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        .btn-danger-custom {
+            background-color: #b5602c; 
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-danger-custom:hover {
+            background-color: #9a4f25;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        .btn-danger-custom:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .about-item {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .about-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .about-text h3 a {
+            color: #b5602c;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .about-text h3 a:hover {
+            color: #9a4f25;
+        }
+        .btn-custom.btn-sm, .btn-danger-custom.btn-sm {
+            padding: 4px 10px;
+            font-size: 13px;
+            min-width: 32px;
+            min-height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-search.btn-sm,
+        .btn-download {
+            height: 32px;
+            min-width: 32px;
+            width: 32px;
+            padding: 0;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-search.btn-sm i,
+        .btn-download i {
+            font-size: 13px;
+            margin: 0;
+        }
+        .btn-square {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('assets/js/workshop.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery-ui.min.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.slicknav.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.nice-select.min.js') }}"></script>
+    <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('assets/js/mixitup.min.js') }}"></script>
+    <script src="{{ asset('assets/js/owl.carousel.min.js') }}"></script>
+    <script src="{{ asset('assets/js/main.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="d-flex justify-content-between mb-3">
+            <a href="{{ path('app_workshop_new') }}" class="btn btn-custom"><i class="fa fa-plus"></i> Ajouter un workshop</a>
+        </div>
+        <form method="get" action="" class="mb-4">
+            <div class="row g-0">
+                <div class="col-10 col-md-10">
+                    <input type="text" name="q" class="form-control form-control-lg h-100" placeholder="Rechercher par nom ou lieu..." value="{{ search|default('') }}">
+                </div>
+                <div class="col-2 col-md-2 d-flex align-items-center justify-content-end" style="gap: 8px;">
+                    <button class="btn btn-custom btn-square" type="submit" title="Rechercher">
+                        <i class="fa fa-search"></i>
+                    </button>
+                    <a href="{{ path('app_workshop_export') }}" class="btn btn-custom btn-square" title="Exporter"><i class="fa fa-download"></i></a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            {% for workshop in workshops %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="about-item p-3 border rounded bg-light">
+                        <img src="{{ asset('' ~ workshop.image) }}" alt="{{ workshop.nom }}" width="200">
+                        <div class="about-text">
+                            <h3><a href="#" class="text-primary">{{ workshop.nom }}</a></h3>
+                            <p>{{ workshop.description }}</p>
+                            <p><strong>Date :</strong> {{ workshop.DateDebut|date('d M Y H:i') }} - {{ workshop.DateFin|date('H:i') }}</p>
+                            <p><strong>Lieu :</strong> {{ workshop.adresse }}</p>
+                            <div class="d-flex flex-row justify-content-center align-items-center mt-3">
+                                <a href="{{ path('app_workshop_show', {'id': workshop.id}) }}" class="btn btn-custom btn-sm mx-1" title="Afficher"><i class="fa fa-eye"></i></a>
+                                <a href="{{ path('app_workshop_edit', {'id': workshop.id}) }}" class="btn btn-custom btn-sm mx-1" title="Modifier"><i class="fa fa-edit"></i></a>
+                                <a href="{{ path('app_task_workshop_new_for_workshop', {'workshopId': workshop.id}) }}" class="btn btn-custom btn-sm mx-1" title="Tâche"><i class="fa fa-tasks"></i></a>
+                                <form action="{{ path('app_workshop_delete', {'id': workshop.id}) }}" method="post" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet atelier ?');" style="display: inline;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ workshop.id) }}">
+                                    <button type="submit" class="btn btn-danger-custom btn-sm mx-1" title="Supprimer"><i class="fa fa-trash"></i></button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <p>Aucun atelier trouvé.</p>
+            {% endfor %}
+        </div>
+        {% if workshops is defined and workshops|length > 0 %}
+            <div class="d-flex justify-content-center mt-4">
+                {{ knp_pagination_render(workshops) }}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

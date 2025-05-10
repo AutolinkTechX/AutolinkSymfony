@@ -1,0 +1,311 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Ajouter un Workshop{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <!-- Chargement des polices et des fichiers CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Styles personnalisés -->
+    <style>
+        .form-container {
+            background-color: #f8f9fa;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .form-main-title {
+            color: #b5602c;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .section-subtitle {
+            font-size: 1.25rem;
+            color: #b5602c;
+            margin-bottom: 15px;
+        }
+
+        .btn-custom {
+            background-color: #b5602c !important;
+            border-color: #b5602c !important;
+            color: #fff;
+            font-weight: bold;
+            padding: 12px 20px;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            width: 48%;
+            box-sizing: border-box;
+        }
+
+        .btn-custom:hover {
+            background-color: #9e4e1f !important;
+            border-color: #9e4e1f !important;
+            color: #fff;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .button-group a:first-child {
+            margin-right: 4%;
+        }
+
+        .form-control-lg {
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 1rem;
+        }
+
+        .invalid-feedback,
+        .form-error-message,
+        .form-errors,
+        .form-error,
+        .symfony-error,
+        .has-error,
+        .is-invalid,
+        .error,
+        .text-danger {
+            color: #ff0000 !important;
+            font-size: 1rem;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .modal-open {
+            overflow: hidden;
+        }
+
+        .btn-custom {
+            background-color: #b5602c;
+            border: none;
+            color: white;
+            padding: 12px 28px;
+            font-size: 17px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-custom:hover {
+            background-color: #9a4f25;
+        }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <!-- Chargement des scripts JavaScript -->
+    <script src="{{ asset('assets/js/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('assets/js/main.js') }}"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var map = L.map('map').setView([36.8065, 10.1815], 7); // Par défaut Tunis
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+            var marker;
+            function onMapClick(e) {
+                if (marker) map.removeLayer(marker);
+                marker = L.marker(e.latlng).addTo(map);
+                fetch(`https://nominatim.openstreetmap.org/reverse?lat=${e.latlng.lat}&lon=${e.latlng.lng}&format=json`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('adresse_affichee').value = data.display_name || '';
+                    });
+            }
+            map.on('click', onMapClick);
+
+            // Recherche d'adresse
+            document.getElementById('search_address').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    var query = this.value;
+                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data && data.length > 0) {
+                                var lat = parseFloat(data[0].lat);
+                                var lon = parseFloat(data[0].lon);
+                                map.setView([lat, lon], 15);
+                                if (marker) map.removeLayer(marker);
+                                marker = L.marker([lat, lon]).addTo(map);
+                                document.getElementById('adresse_affichee').value = data[0].display_name || '';
+                            } else {
+                                alert('Aucun résultat trouvé pour cette recherche.');
+                            }
+                        });
+                }
+            });
+
+            // Contrôle JS sur les dates
+            var form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    var dateDebutInput = document.querySelector('input[name$="[DateDebut]"]');
+                    var dateFinInput = document.querySelector('input[name$="[DateFin]"]');
+                    var errorDiv = document.getElementById('datefin-error');
+                    if (errorDiv) errorDiv.remove();
+                    if (dateDebutInput && dateFinInput) {
+                        // Remplacer espace par T pour compatibilité ISO
+                        var dateDebut = new Date(dateDebutInput.value.replace(' ', 'T'));
+                        var dateFin = new Date(dateFinInput.value.replace(' ', 'T'));
+                        if (dateFin <= dateDebut) {
+                            e.preventDefault();
+                            var error = document.createElement('div');
+                            error.id = 'datefin-error';
+                            error.className = 'invalid-feedback d-block';
+                            error.innerText = 'La date de fin doit être supérieure à la date de début.';
+                            dateFinInput.parentNode.appendChild(error);
+                            dateFinInput.classList.add('is-invalid');
+                        } else {
+                            dateFinInput.classList.remove('is-invalid');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+<section class="product-form-section py-5">
+    <div class="container">
+        <h2 class="form-main-title">Ajouter un Workshop</h2>
+        <div class="form-container">
+            <h3 class="section-subtitle"><i class="fa fa-edit mr-2"></i> Détails du Workshop</h3>
+            
+            {# Début du formulaire avec support pour les fichiers #}
+            {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+
+            <!-- Champ Nom du Workshop -->
+            <div class="form-group mb-4">
+                <label class="input-label font-weight-bold">Nom du Workshop</label>
+                {{ form_widget(form.nom, {'attr': {'class': 'form-control form-control-lg', 'required': 'required'}}) }}
+                {{ form_errors(form.nom) }}
+            </div>
+
+            <!-- Champ Description -->
+            <div class="form-group mb-4">
+                <label class="input-label font-weight-bold">Description</label>
+                {{ form_widget(form.description, {'attr': {'class': 'form-control form-control-lg', 'rows': '4', 'required': 'required'}}) }}
+                {{ form_errors(form.description) }}
+            </div>
+
+            <!-- Dates de début et de fin -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="input-label font-weight-bold">Date de début</label>
+                        {{ form_widget(form.DateDebut, {'attr': {'class': 'form-control form-control-lg', 'required': 'required'}}) }}
+                        {{ form_errors(form.DateDebut) }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="input-label font-weight-bold">Date de fin</label>
+                        {{ form_widget(form.DateFin, {'attr': {'class': 'form-control form-control-lg', 'required': 'required'}}) }}
+                        {{ form_errors(form.DateFin) }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Champ Map et Adresse -->
+            <div class="form-group mb-4">
+                <label class="input-label font-weight-bold">Localisation sur la carte</label>
+                <input type="text" id="search_address" class="form-control form-control-lg mb-2" placeholder="Rechercher une adresse ou un lieu...">
+                <label class="input-label font-weight-bold" for="adresse_affichee">Destination sélectionnée</label>
+                <input type="text" id="adresse_affichee" name="destination_selectionnee" class="form-control form-control-lg mb-2" readonly placeholder="Destination sélectionnée...">
+                <div id="map" style="height: 350px; border-radius: 8px; margin-bottom: 10px;"></div>
+            </div>
+
+            <!-- Champ Image -->
+            <div class="form-group mb-4">
+                <label class="input-label font-weight-bold">Image du Workshop</label>
+                {{ form_widget(form.imageFile, {'attr': {'class': 'form-control-file form-control-lg'}}) }}
+                {{ form_errors(form.imageFile) }}
+            </div>
+
+            <!-- Champ Nombre de places disponibles -->
+            <div class="form-group mb-4">
+                <label class="input-label font-weight-bold">Nombre de places disponibles</label>
+                {{ form_widget(form.availablePlaces, {'attr': {'class': 'form-control form-control-lg', 'min': '0', 'required': 'required'}}) }}
+                {{ form_errors(form.availablePlaces) }}
+            </div>
+
+            <!-- Champ Prix -->
+            <div class="form-group mb-4">
+                <label class="input-label font-weight-bold">Prix</label>
+                {{ form_widget(form.price, {'attr': {'class': 'form-control form-control-lg', 'required': 'required'}}) }}
+                {{ form_errors(form.price) }}
+            </div>
+
+            <!-- Boutons -->
+            <div class="button-group">
+                <a href="{{ path('app_workshop_index') }}" class="btn-custom">Retour à la liste</a>
+                <button type="submit" class="btn-custom">Enregistrer</button>
+            </div>
+
+            {{ form_rest(form) }}
+            {{ form_end(form, {'render_rest': false}) }}
+        </div>
+    </div>
+</section>
+
+{% if showCalendarModal %}
+<!-- Modal calendrier -->
+<div class="modal fade show" id="calendarModal" tabindex="-1" role="dialog" aria-labelledby="calendarModalLabel" aria-modal="true" style="display: block; background: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content" style="border-radius: 16px;">
+      <div class="modal-header" style="background: #b5602c; color: #fff; border-top-left-radius: 16px; border-top-right-radius: 16px;">
+        <h5 class="modal-title" id="calendarModalLabel"><i class="fa fa-calendar-plus-o"></i> Ajouter au calendrier</h5>
+      </div>
+      <div class="modal-body text-center">
+        <p class="mb-4" style="font-size: 1.15em;">Souhaitez-vous ajouter ce workshop à votre agenda&nbsp;?</p>
+        {% set start = workshop.DateDebut|date('Ymd\THis') %}
+        {% set end = workshop.DateFin|date('Ymd\THis') %}
+        <a href="https://www.google.com/calendar/render?action=TEMPLATE
+            &text={{ workshop.nom|url_encode }}
+            &dates={{ start }}/{{ end }}
+            &details={{ workshop.description|url_encode }}
+            &location={{ workshop.adresse|url_encode }}
+            &sf=true&output=xml"
+           target="_blank" class="btn btn-custom btn-lg mb-2 mr-2">
+            <i class="fa fa-calendar-plus-o"></i> Ajouter à Google Agenda
+        </a>
+        <a href="{{ path('app_workshop_index') }}" class="btn btn-custom btn-lg mb-2">Retour aux workshops</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  // Empêche l'utilisateur d'interagir avec la page tant que le modal est ouvert
+  document.body.classList.add('modal-open');
+</script>
+{% endif %}
+{% endblock %}

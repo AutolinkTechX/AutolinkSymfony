@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Workshop ajouté !{% endblock %}
+
+{% block body %}
+<div class="container py-5 text-center">
+    <div class="card shadow p-4 mx-auto" style="max-width: 500px;">
+        <h2 class="mb-3" style="color: #b5602c;">Workshop ajouté avec succès !</h2>
+        <p class="mb-4">Votre workshop <b>{{ workshop.nom }}</b> a bien été enregistré.</p>
+        <div class="mb-4">
+            <a href="{{ path('app_workshop_index') }}" class="btn btn-outline-secondary">Retour à la liste des workshops</a>
+        </div>
+        <h4 class="mb-3">Ajouter à votre agenda :</h4>
+        {% set start = workshop.DateDebut|date('Ymd\THis') %}
+        {% set end = workshop.DateFin|date('Ymd\THis') %}
+        <a href="https://www.google.com/calendar/render?action=TEMPLATE
+            &text={{ workshop.nom|url_encode }}
+            &dates={{ start }}/{{ end }}
+            &details={{ workshop.description|url_encode }}
+            &location={{ workshop.adresse|url_encode }}
+            &sf=true&output=xml"
+           target="_blank" class="btn btn-custom btn-lg mb-2">
+            <i class="fa fa-calendar-plus-o"></i> Ajouter à Google Agenda
+        </a>
+        <p class="text-muted mt-2" style="font-size: 0.95em;">Cliquez sur le bouton pour ajouter ce workshop à votre Google Agenda.</p>
+    </div>
+</div>
+<style>
+.btn-custom {
+  background-color: #b5602c;
+  border: none;
+  color: white;
+  padding: 12px 28px;
+  font-size: 17px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.btn-custom:hover {
+  background-color: #9a4f25;
+}
+</style>
+{% endblock %} 

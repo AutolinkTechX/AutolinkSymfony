@@ -1,0 +1,175 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Modifier un Workshop{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/elegant-icons.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/nice-select.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/jquery-ui.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/slicknav.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        .form-container {
+            background-color: #f8f9fa; 
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .form-main-title {
+            color: #b5602c;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .section-subtitle {
+            font-size: 1.25rem;
+            color: #b5602c;
+            margin-bottom: 15px;
+        }
+        
+        .btn-custom {
+            background-color: #b5602c; 
+            border-color: #b5602c;
+            color: #fff;
+            font-weight: bold;
+            padding: 12px 20px;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            margin: 5px;
+            display: inline-block; 
+            width: 48%; 
+            box-sizing: border-box;
+        }
+
+        .btn-custom:hover {
+            background-color: #9e4e1f;
+            border-color: #9e4e1f;
+            color: #fff;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .button-group a,
+        .button-group button {
+            width: 48%; 
+        }
+
+        .button-group a:first-child {
+            margin-right: 4%; 
+        }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('assets/js/workshop.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery-ui.min.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.slicknav.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.nice-select.min.js') }}"></script>
+    <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('assets/js/mixitup.min.js') }}"></script>
+    <script src="{{ asset('assets/js/owl.carousel.min.js') }}"></script>
+    <script src="{{ asset('assets/js/main.js') }}"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var lat = document.getElementById('form_latitude').value || 36.8065;
+            var lng = document.getElementById('form_longitude').value || 10.1815;
+            var map = L.map('map').setView([lat, lng], (lat && lng) ? 13 : 7);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+            var marker;
+            if (document.getElementById('form_latitude').value && document.getElementById('form_longitude').value) {
+                marker = L.marker([lat, lng]).addTo(map);
+            }
+            function onMapClick(e) {
+                if (marker) map.removeLayer(marker);
+                marker = L.marker(e.latlng).addTo(map);
+                document.getElementById('form_latitude').value = e.latlng.lat;
+                document.getElementById('form_longitude').value = e.latlng.lng;
+                // Reverse geocoding
+                fetch(`https://nominatim.openstreetmap.org/reverse?lat=${e.latlng.lat}&lon=${e.latlng.lng}&format=json`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('form_adresse').value = data.display_name || '';
+                    });
+            }
+            map.on('click', onMapClick);
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+<section class="product-form-section py-5">
+    <div class="container">
+        <h2 class="form-main-title">Modifier un Workshop</h2>
+    
+                    <div class="form-container">
+                        <h3 class="section-subtitle"><i class="fa fa-edit mr-2"></i> Détails du Workshop</h3>
+                        {{ form_start(form) }} <!-- Début du formulaire -->
+                        <div class="form-group mb-4">
+                            <label class="input-label font-weight-bold">Nom du Workshop</label>
+                            {{ form_widget(form.nom, {'attr': {'class': 'form-control form-control-lg', 'required': 'required'}}) }}
+                            {{ form_errors(form.nom) }}
+                        </div>
+                        <div class="form-group mb-4">
+                            <label class="input-label font-weight-bold">Description</label>
+                            {{ form_widget(form.description, {'attr': {'class': 'form-control form-control-lg', 'rows': '4', 'required': 'required'}}) }}
+                            {{ form_errors(form.description) }}
+                        </div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="input-label font-weight-bold">Date de début</label>
+                                    {{ form_widget(form.DateDebut, {'attr': {'class': 'form-control form-control-lg', 'required': 'required'}}) }}
+                                    {{ form_errors(form.DateDebut) }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="input-label font-weight-bold">Date de fin</label>
+                                    {{ form_widget(form.DateFin, {'attr': {'class': 'form-control form-control-lg', 'required': 'required'}}) }}
+                                    {{ form_errors(form.DateFin) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mb-4">
+                            <label class="input-label font-weight-bold">Adresse</label>
+                            {{ form_widget(form.adresse, {'attr': {'class': 'form-control form-control-lg', 'readonly': 'readonly'}}) }}
+                            {{ form_errors(form.adresse) }}
+                        </div>
+                        <div class="form-group mb-4">
+                            <label class="input-label font-weight-bold">Image du Workshop</label>
+                            {{ form_widget(form.imageFile, {'attr': {'class': 'form-control-file form-control-lg'}}) }}
+                            {{ form_errors(form.imageFile) }}
+                        </div>
+                        <div class="button-group">
+                            <a href="{{ path('app_workshop_index') }}" class="btn-custom">Retour à la liste</a>
+                            <button type="submit" class="btn-custom">Mettre à jour</button>
+                        </div>
+                        {{ form_end(form) }} <!-- Fin du formulaire -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

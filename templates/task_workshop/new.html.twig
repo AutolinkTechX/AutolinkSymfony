@@ -1,0 +1,196 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Ajouter une tâche {% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <!-- Chargement des polices et des fichiers CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+
+    <!-- Styles personnalisés -->
+    <style>
+        .form-container {
+            background-color: #f8f9fa;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .form-main-title {
+            color: #b5602c;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .section-subtitle {
+            font-size: 1.25rem;
+            color: #b5602c;
+            margin-bottom: 15px;
+        }
+
+        .btn-custom {
+            background-color: #b5602c !important;
+            border-color: #b5602c !important;
+            color: #fff;
+            font-weight: bold;
+            padding: 12px 20px;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            width: 48%;
+            box-sizing: border-box;
+        }
+
+        .btn-custom:hover {
+            background-color: #9e4e1f !important;
+            border-color: #9e4e1f !important;
+            color: #fff;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .button-group a:first-child {
+            margin-right: 4%;
+        }
+
+        .form-control-lg {
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 1rem;
+        }
+
+        /* Messages d'erreur */
+        .invalid-feedback,
+        .form-error-message,
+        .form-errors,
+        .form-error,
+        .symfony-error,
+        .has-error,
+        .is-invalid,
+        .error,
+        .text-danger {
+            color: #ff0000 !important;
+            font-size: 1rem;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <!-- Chargement des scripts JavaScript -->
+    <script src="{{ asset('assets/js/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('assets/js/main.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    var dateDebutInput = document.querySelector('input[name$="[DateDebut]"]');
+                    var dateFinInput = document.querySelector('input[name$="[DateFin]"]');
+                    var errorDiv = document.getElementById('datefin-error-js');
+                    if (errorDiv) errorDiv.innerHTML = '';
+                    if (dateDebutInput && dateFinInput) {
+                        var dateDebut = new Date(dateDebutInput.value.replace(' ', 'T'));
+                        var dateFin = new Date(dateFinInput.value.replace(' ', 'T'));
+                        if (dateFin <= dateDebut) {
+                            e.preventDefault();
+                            errorDiv.innerHTML = '<div class="invalid-feedback d-block">La date de fin doit être supérieure à la date de début.</div>';
+                            dateFinInput.classList.add('is-invalid');
+                        } else {
+                            dateFinInput.classList.remove('is-invalid');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+<section class="product-form-section py-5">
+    <div class="container">
+        <h2 class="form-main-title">Ajouter une tâche</h2>
+        <div class="form-container">
+            <h3 class="section-subtitle"><i class="fa fa-edit mr-2"></i> Détails du Task</h3>
+            
+            {# Début du formulaire #}
+            {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+
+            <!-- Champ Nom du Task -->
+            <div class="form-group mb-4">
+                <label class="input-label font-weight-bold">Nom du tâche</label>
+                {{ form_widget(form.nom, {'attr': {'class': 'form-control form-control-lg', 'required': 'required'}}) }}
+                {{ form_errors(form.nom) }}
+            </div>
+
+            <!-- Champ Description -->
+            <div class="form-group mb-4">
+                <label class="input-label font-weight-bold">Description</label>
+                {{ form_widget(form.description, {'attr': {'class': 'form-control form-control-lg', 'rows': '4', 'required': 'required'}}) }}
+                {{ form_errors(form.description) }}
+            </div>
+
+            <!-- Dates de début et de fin -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="input-label font-weight-bold">Date de début</label>
+                        {{ form_widget(form.DateDebut, {'attr': {'class': 'form-control form-control-lg', 'required': 'required'}}) }}
+                        {{ form_errors(form.DateDebut) }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="input-label font-weight-bold">Date de fin</label>
+                        {{ form_widget(form.DateFin, {'attr': {'class': 'form-control form-control-lg', 'required': 'required'}}) }}
+                        {{ form_errors(form.DateFin) }}
+                        <div id="datefin-error-js"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Champ Statut -->
+            <div class="form-group mb-4">
+                <label class="input-label font-weight-bold">Statut</label>
+                {{ form_widget(form.status, {'attr': {'class': 'form-control form-control-lg', 'required': 'required'}}) }}
+                {{ form_errors(form.status) }}
+            </div>
+
+            <!-- Champ Workshop -->
+            <div class="form-group mb-4">
+                <label class="input-label font-weight-bold">Workshop</label>
+                {{ form_widget(form.workshop, {'attr': {'class': 'form-control form-control-lg', 'required': 'required'}}) }}
+                {{ form_errors(form.workshop) }}
+            </div>
+
+            <!-- Boutons -->
+            <div class="button-group">
+                <a href="{{ path('app_task_workshop_index') }}" class="btn-custom">Retour à la liste</a>
+                <button type="submit" class="btn-custom">Enregistrer</button>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+</section>
+{% endblock %}

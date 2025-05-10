@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}TaskWorkshop {% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/elegant-icons.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/nice-select.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/jquery-ui.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/slicknav.min.css') }}">
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('assets/js/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery-ui.min.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.slicknav.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.nice-select.min.js') }}"></script>
+    <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('assets/js/mixitup.min.js') }}"></script>
+    <script src="{{ asset('assets/js/owl.carousel.min.js') }}"></script>
+    <script src="{{ asset('assets/js/main.js') }}"></script>
+    <script src="{{ asset('assets/js/workshop.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        {% for task_workshop in task_workshops %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h3 class="card-title" style="color: #b5602c;">{{ task_workshop.nom }}</h3>
+                        <p class="card-text">{{ task_workshop.description }}</p>
+                        <p class="card-text"><strong>Date :</strong> 
+                            {{ task_workshop.DateDebut ? task_workshop.DateDebut|date('d M Y H:i') : 'N/A' }} - 
+                            {{ task_workshop.DateFin ? task_workshop.DateFin|date('H:i') : 'N/A' }}
+                        </p>
+                        <p class="card-text"><strong>Statut :</strong> {{ task_workshop.status }}</p>
+                        <div class="d-flex justify-content-between gap-2 mt-3">
+                            <a href="{{ path('app_task_workshop_show', {'id': task_workshop.id}) }}" class="btn btn-primary btn-sm" style="background-color: #b5602c; border-color: #b5602c; padding: 8px 12px; font-size: 14px;">
+                                <i class="fa fa-eye"></i> Afficher
+                            </a>
+                            <a href="{{ path('app_task_workshop_edit', {'id': task_workshop.id}) }}" class="btn btn-warning btn-sm" style="background-color: #b5602c; border-color: #b5602c; padding: 8px 12px; font-size: 14px;">
+                                <i class="fa fa-edit"></i> Modifier
+                            </a>
+                            <form action="{{ path('app_task_workshop_delete', {'id': task_workshop.id}) }}" method="post" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?');" style="display: inline;">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ task_workshop.id) }}">
+                                <button type="submit" class="btn btn-danger btn-sm" style="background-color: #b5602c; border-color: #b5602c; padding: 8px 12px; font-size: 14px;">
+                                    <i class="fa fa-trash"></i> Suppr
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="text-center my-5">
+        <a href="{{ path('app_task_workshop_new') }}" class="btn btn-success btn-lg" style="background-color: #b5602c; border-color: #b5602c;">Ajouter une tâche</a>
+    </div>
+</div>
+{% endblock %}

@@ -15,6 +15,8 @@ use App\Service\MailService;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\AccordRepository;
 use App\Repository\MaterielRecyclableRepository;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+
 
 
 
@@ -292,7 +294,7 @@ public function refuserAccord(
 }
 
 
-#[Route('/accords/refuses', name: 'accords_refuses')]
+/*#[Route('/accords/refuses', name: 'accords_refuses')]
 public function accordsRefuses(EntityManagerInterface $entityManager): Response
 {
     // Vérifier que l'utilisateur est connecté
@@ -313,7 +315,32 @@ public function accordsRefuses(EntityManagerInterface $entityManager): Response
     ]);
 
     return $this->render('accord/accords_refuses.html.twig', [
-        'materiels' => $materiels,
+       'accords' => $accords
+    ]);
+}*/
+
+#[Route('/accords/refuses', name: 'accords_refuses')]
+public function accordsRefuses(EntityManagerInterface $entityManager): Response
+{
+    // Vérifications de sécurité
+    $user = $this->getUser();
+    if (!$user || !in_array('ROLE_ENTREPRISE', $user->getRoles())) {
+        throw $this->createAccessDeniedException('Accès entreprise requis.');
+    }
+
+    // Récupérer les Accords REFUSÉS liés à l'entreprise
+    $accords = $entityManager->getRepository(Accord::class)
+        ->createQueryBuilder('a')
+        ->join('a.materielRecyclable', 'm') // Jointure avec le matériel
+        ->where('m.statut = :statut')
+        ->andWhere('m.entreprise = :entreprise')
+        ->setParameter('statut', StatutEnum::REFUSE)
+        ->setParameter('entreprise', $user)
+        ->getQuery()
+        ->getResult();
+
+    return $this->render('accord/accords_refuses.html.twig', [
+        'accords' => $accords // ✅ Variable correctement initialisée
     ]);
 }
     
@@ -338,48 +365,63 @@ public function accordsAcceptes(EntityManagerInterface $entityManager): Response
     // Récupérer les matériaux recyclables acceptés
     $materiels = $entityManager->getRepository(MaterielRecyclable::class)->findBy([
         'entreprise' => $user,
-        'statut' => StatutEnum::VALIDE // ✅ Filtrer uniquement les matériaux acceptés
+        'statut' => StatutEnum::VALIDE
     ]);
 
     return $this->render('accord/accords_acceptes.html.twig', [
-        'materiels' => $materiels,
+        'accords' => $materiels
     ]);
 }
 
 
 
-#[Route('/accord/delete/{id}', name: 'accord_delete')]
+
+/*#[Route('/accord/delete/{id}', name: 'accord_delete')]
+    public function delete(int $id, EntityManagerInterface $entityManager): RedirectResponse
+    {
+        $accord = $entityManager->getRepository(Accord::class)->find($id);
+
+        if (!$accord) {
+            $this->addFlash('error', 'Accord non trouvé.');
+            return $this->redirectToRoute('accords_refuses');
+        }
+
+        $materiel = $accord->getMaterielRecyclable();
+
+        // Suppression de l'image
+        if ($materiel && $materiel->getImage()) {
+            $imagePath = $this->getParameter('uploads_directory') . '/' . $materiel->getImage();
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
+        }
+
+        // Suppression de l'accord (et du matériel via cascade)
+        $entityManager->remove($accord);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Suppression réussie.');
+        return $this->redirectToRoute('accords_refuses');
+    }*/
+
+
+    #[Route('/accord/delete/{id}', name: 'accord_delete')]
 public function delete(int $id, EntityManagerInterface $entityManager): RedirectResponse
 {
     $accord = $entityManager->getRepository(Accord::class)->find($id);
 
-    if ($accord) {
-        $materiel = $accord->getMateriel(); // Récupérer le matériel associé
-
-        // Supprimer d'abord l'accord pour éviter les erreurs de contrainte de clé étrangère
-        $entityManager->remove($accord);
-        $entityManager->flush();
-
-        // Vérifier si le matériel doit être supprimé après l'accord
-        if ($materiel) {
-            if ($materiel->getImage()) {
-                $imagePath = $this->getParameter('uploads_directory') . '/' . $materiel->getImage();
-                if (file_exists($imagePath)) {
-                    unlink($imagePath); // Supprimer l'image du matériel
-                }
-            }
-            $entityManager->remove($materiel);
-            $entityManager->flush();
-        }
-
-        $this->addFlash('success', 'L\'accord et son matériel associé ont été supprimés avec succès.');
-    } else {
+    if (!$accord) {
         $this->addFlash('error', 'Accord non trouvé.');
+        return $this->redirectToRoute('accords_refuses');
     }
 
-    return $this->redirectToRoute('app_accords_refuses');
-}
+    // Supprimer uniquement l'accord (le matériel reste intact)
+    $entityManager->remove($accord);
+    $entityManager->flush();
 
+    $this->addFlash('success', 'Suppression réussie.');
+    return $this->redirectToRoute('accords_refuses');
+}
 
 
 }

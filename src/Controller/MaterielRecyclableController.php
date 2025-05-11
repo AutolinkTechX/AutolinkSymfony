@@ -18,6 +18,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 use App\Entity\Accord;
 use App\Repository\EntrepriseRepository;
 use App\Entity\User;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+
 
 
 
@@ -206,14 +208,12 @@ if (!$user) {
             $imageFile = $form->get('image')->getData();
             
             if ($imageFile) {
-                $fileName = uniqid('img_', true) . '.' . $imageFile->guessExtension();
-                try {
-                    $imageFile->move($this->uploadsDirectory, $fileName);
-                    $materiel->setImage($fileName);
-                } catch (FileException $e) {
-                    $this->addFlash('error', 'Erreur lors de l\'upload de l\'image : ' . $e->getMessage());
-                    return $this->redirectToRoute('ajouter_materiel_recyclable');
-                }
+                $fileName = $imageFile->getClientOriginalName();
+                $fullPath = $this->uploadsDirectory . '/' . $fileName;
+                $imageFile->move($this->uploadsDirectory, $fileName);
+                $materiel->setImage($fullPath);
+            } else {
+                $materiel->setImage('default-image.jpg');
             }
             $entityManager->persist($materiel);
 
@@ -252,146 +252,60 @@ if (!$user) {
 
 
 
-  /*  #[Route('/ajouter', name: 'ajouter_materiel_recyclable')]
-public function add(Request $request, EntityManagerInterface $entityManager, EntrepriseRepository $entrepriseRepository): Response
-{
-    $materiel = new MaterielRecyclable();
-    $materiel->setStatut(StatutEnum::EN_ATTENTE);
+ #[Route('/materiel/edit/{id}', name: 'materiel_edit')]
+public function edit(
+    int $id, 
+    MaterielRecyclableRepository $materielRepository, 
+    Request $request, 
+    EntityManagerInterface $entityManager,
+    ParameterBagInterface $params
+): Response {
+    $materiel = $materielRepository->find($id);
+    
+    if (!$materiel) {
+        throw $this->createNotFoundException('Material not found');
+    }
 
-    // Récupération du type de matériau depuis la requête (si disponible)
-    $typemateriel = $request->query->get('typemateriel', null);
-
-    // Création du formulaire avec l'option typemateriel
-    $form = $this->createForm(MaterielRecyclableType::class, $materiel, [
-        'typemateriel' => $typemateriel,
-    ]);
-
+    // Récupérer le chemin complet actuel depuis la BDD
+    $currentImagePath = $materiel->getImage();
+    
+    $form = $this->createForm(MaterielRecyclableEditType::class, $materiel);
     $form->handleRequest($request);
 
     if ($form->isSubmitted() && $form->isValid()) {
-        $user = $this->getUser();
-        $materiel->setDatecreation(new \DateTimeImmutable());
+        /** @var UploadedFile|null $file */
+        $file = $form->get('image')->getData();
+        $uploadsDir = $params->get('uploads_directory');
 
-        if ($user) {
-            $materiel->setUser($user);
-        } else {
-            return $this->redirectToRoute('login');
-        }
+        if ($file) {
+            $fileName = $file->getClientOriginalName(); // Garder le nom original
+            $fullPath = $uploadsDir.'/'.$fileName;
 
-        $imageFile = $form->get('image')->getData();
-        if ($imageFile) {
-            $fileName = uniqid('img_', true) . '.' . $imageFile->guessExtension();
             try {
-                $imageFile->move($this->uploadsDirectory, $fileName);
-                $materiel->setImage($fileName);
+                // Supprimer l'ancienne image si elle existe
+                if ($currentImagePath && file_exists($currentImagePath)) {
+                    unlink($currentImagePath);
+                }
+                
+                $file->move($uploadsDir, $fileName);
+                $materiel->setImage($fullPath); // Stocker le chemin complet
             } catch (FileException $e) {
-                $this->addFlash('error', 'Erreur lors de l\'upload de l\'image : ' . $e->getMessage());
-                return $this->redirectToRoute('ajouter_materiel_recyclable');
+                $this->addFlash('error', 'Erreur upload: '.$e->getMessage());
+                return $this->redirectToRoute('materiel_edit', ['id' => $id]);
             }
         }
 
-        $entityManager->persist($materiel);
-
-        // Création de l'accord pour ce matériel
-        $accord = new Accord();
-        $accord->setMaterielRecyclable($materiel);
-
-        // Récupération de l'entreprise en fonction du typemateriel
-        $entreprise = $materiel->getEntreprise();
-        if ($entreprise !== null) {
-            $accord->setEntreprise($entreprise);
-        } else {
-            throw new \Exception("L'entreprise associée au matériel est introuvable !");
-        }
-
-        $accord->setDateCreation(new \DateTimeImmutable());
-        $accord->setquantity('0');
-        $accord->setoutput('output');
-
-        $entityManager->persist($accord);
         $entityManager->flush();
-
-        $this->addFlash('success', 'Matériel ajouté avec succès !');
+        $this->addFlash('success', 'Modification réussie');
         return $this->redirectToRoute('app_materiaux_liste');
     }
 
-    return $this->render('materiel_recyclable/ajouter.html.twig', [
+    return $this->render('materiel_recyclable/edit.html.twig', [
         'form' => $form->createView(),
-        'materielRecyclable' => $materiel
+        'materiel' => $materiel,
+        'current_image_path' => $currentImagePath // Passer le chemin complet au template
     ]);
 }
-*/
-
-
-
-
-
-
-  /*  #[Route('/materiaux', name: 'app_materiaux_liste')]
-    public function liste(EntityManagerInterface $entityManager): Response
-    {
-        $materiaux = $entityManager->getRepository(MaterielRecyclable::class)->findAll();
-        return $this->render('materiel_recyclable/list.html.twig', [
-            'materiaux' => $materiaux,
-            
-        ]);
-    }*/
-    #[Route('/materiel/edit/{id}', name: 'materiel_edit')]
-    public function edit(int $id, MaterielRecyclableRepository $materielRepository, Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $materiel = $materielRepository->find($id);
-        if (!$materiel) {
-            throw $this->createNotFoundException('The material does not exist.');
-        }
-    
-        $form = $this->createForm(MaterielRecyclableEditType::class, $materiel);
-        $form->handleRequest($request);
-    
-        if ($form->isSubmitted() && $form->isValid()) {
-            // Handle image upload
-            /** @var UploadedFile|null $file */
-            $file = $form->get('image')->getData();
-            if ($file) {
-                $fileName = md5(uniqid()) . '.' . $file->guessExtension();
-                try {
-                    $file->move($this->uploadsDirectory, $fileName);
-                    $materiel->setImage($fileName); // Ensure this method is defined in your entity
-                } catch (FileException $e) {
-                    $this->addFlash('error', 'There was an error uploading your material image: ' . $e->getMessage());
-                    return $this->redirectToRoute('app_materiaux_liste');
-                }
-            }
-    
-            $entityManager->persist($materiel);
-            $entityManager->flush();
-    
-            return $this->redirectToRoute('app_materiaux_liste');
-        }
-    
-        return $this->render('materiel_recyclable/edit.html.twig', [
-            'materiel' => $materiel,
-            'form' => $form->createView(),
-        ]);
-    }
-    #[Route('/materiel/delete/{id}', name: 'materiel_delete')]
-    public function delete(int $id, EntityManagerInterface $entityManager): RedirectResponse
-    {
-        $materiel = $entityManager->getRepository(MaterielRecyclable::class)->find($id);
-        if ($materiel) {
-            if ($materiel->getImage()) {
-                $imagePath = $this->uploadsDirectory . '/' . $materiel->getImage();
-                if (file_exists($imagePath)) {
-                    unlink($imagePath);
-                }
-            }
-            $entityManager->remove($materiel);
-            $entityManager->flush();
-            $this->addFlash('success', 'Matériel recyclable supprimé avec succès.');
-        } else {
-            $this->addFlash('error', 'Matériel recyclable non trouvé.');
-        }
-        return $this->redirectToRoute('app_materiaux_liste');
-    }
 
     #[Route('/admin/listMaterials', name: 'list_materials_admin')]
     public function listMaterial(MaterielRecyclableRepository $materielRepository, Request $request, EntityManagerInterface $entityManager): Response
@@ -435,6 +349,8 @@ public function add(Request $request, EntityManagerInterface $entityManager, Ent
             'form' => $form->createView(),
         ]);
     }
+
+
 
     #[Route('/admin/editMaterial/{id}', name: 'edit_material_admin')]
     public function editMaterial(int $id, MaterielRecyclableRepository $materielRepository, Request $request, EntityManagerInterface $entityManager): Response
@@ -489,4 +405,26 @@ public function add(Request $request, EntityManagerInterface $entityManager, Ent
         ]);
     }*/
    
+
+
+    #[Route('/materiel/delete/{id}', name: 'materiel_delete')]
+    public function delete(int $id, EntityManagerInterface $entityManager): RedirectResponse
+    {
+        $materiel = $entityManager->getRepository(MaterielRecyclable::class)->find($id);
+        if ($materiel) {
+            if ($materiel->getImage()) {
+                $imagePath = $this->uploadsDirectory . '/' . $materiel->getImage();
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
+            }
+            $entityManager->remove($materiel);
+            $entityManager->flush();
+            $this->addFlash('success', 'Matériel recyclable supprimé avec succès.');
+        } else {
+            $this->addFlash('error', 'Matériel recyclable non trouvé.');
+        }
+        return $this->redirectToRoute('app_materiaux_liste');
+    }
+
 }

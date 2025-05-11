@@ -24,53 +24,51 @@ class MaterielRecyclableEditType extends AbstractType
     {
         $builder
             ->add('name', TextType::class, [
-                'label' => 'Name',
+                'label' => 'Nom',
                 'attr' => ['class' => 'form-control'],
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Description',
                 'attr' => ['class' => 'form-control'],
             ])
-
             ->add('image', FileType::class, [
-                'label' => 'image',
+                'label' => 'Image',
                 'required' => false,
-                'data_class' => null,
+                'mapped' => false,
                 'constraints' => [
                     new File([
-                        'maxSize' => '2024k',
-                        'mimeTypes' => [
-                            'image/jpeg',
-                            'image/png',
-                        ],
-                        'mimeTypesMessage' => 'Please upload a valid JPEG or PNG file',
-                    ]),
+                        'maxSize' => '2M',
+                        'mimeTypes' => ['image/jpeg', 'image/png'],
+                    ])
                 ],
-                
             ])
-            ->add('typemateriel', TextType::class, [
-                'label' => 'Type of Material',
-                'attr' => ['class' => 'form-control'],
-            ])
+           ->add('typemateriel', ChoiceType::class, [
+         'label' => 'Type de Matériau',
+          'choices' => [
+            'Plastique' => 'plastique',
+        'Aluminium' => 'aluminium',
+        'Caoutchouc' => 'caoutchouc'
+    ],
+           'attr' => ['class' => 'form-select'],
+     ])
             ->add('entreprise', EntityType::class, [
                 'class' => Entreprise::class,
                 'choice_label' => 'company_name',
-                'label' => 'Enterprise',
                 'attr' => ['class' => 'form-control'],
                 'query_builder' => function (EntityRepository $er) {
                     return $er->createQueryBuilder('e')
                         ->where('e.supplier = :supplier')
                         ->setParameter('supplier', true);
                 },
-            ])
-            ->add('submit', SubmitType::class, ['label' => 'Save'])
-        ;
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => MaterielRecyclable::class,
+            'csrf_protection' => false, // Désactivation CSRF
         ]);
     }
 }
+

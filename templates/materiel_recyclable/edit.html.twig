@@ -1,20 +1,28 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Ajouter un Matériau Recyclable{% endblock %}
+{% block title %}Éditer Matériel{% endblock %}
 
 {% block body %}
 <section class="product-form-section py-5">
     <div class="container">
-        <h2 class="form-main-title text-center mb-4">Ajouter un Matériau Recyclable</h2>
+        <h2 class="form-main-title text-center mb-4">Éditer Matériel</h2>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
         
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+
         <div class="form-wrapper"> 
             <div class="row justify-content-center">
                 <div class="col-md-8">
                     <div class="form-container p-4 border rounded shadow-sm">
                         <h3 class="section-subtitle mb-3"><i class="fa fa-edit mr-2"></i>Détails du Matériau</h3>
                         
-                        {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'novalidate': 'novalidate'}}) }} 
-                        
+                        {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'novalidate': 'novalidate'}}) }}
+
                         <div class="form-group mb-3">
                             {{ form_label(form.name, 'Nom', {'label_attr': {'class': 'form-label'}}) }}
                             {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
@@ -31,32 +39,47 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     {{ form_label(form.entreprise, 'Entreprise', {'label_attr': {'class': 'form-label'}}) }}
-                                    {{ form_widget(form.entreprise, {'attr': {'class': 'form-select', 'id': 'form_entreprise'}}) }}
+                                    {{ form_widget(form.entreprise, {'attr': {'class': 'form-select'}}) }}
                                     {{ form_errors(form.entreprise) }}
                                 </div>
                                 <div class="col-md-6">
                                     {{ form_label(form.typemateriel, 'Type de Matériau', {'label_attr': {'class': 'form-label'}}) }}
-                                    {{ form_widget(form.typemateriel, {'attr': {'class': 'form-select', 'id': 'form_typemateriel'}}) }}
+                                    {{ form_widget(form.typemateriel, {'attr': {'class': 'form-select'}}) }}
                                     {{ form_errors(form.typemateriel) }}
                                 </div>
                             </div>
                         </div>
+
                         <div class="form-group mb-3">
-                            {% if materiel.image %}
-                 <img src="{{ asset('uploads/' ~ materiel.image) }}" alt="Current Image" style="max-width: 200px; height: auto;">
-                      {% endif %}
-
-                            {{ form_label(form.image, 'Image', {'label_attr': {'class': 'form-label'}}) }}
-                            {{ form_widget(form.image, {'attr': {'class': 'form-control'}}) }}
-                            {{ form_errors(form.image) }}
-                        </div>
-
+    {% if materiel.image %}
+        <div class="current-image mb-3">
+            <img src="{{ asset('uploads/' ~ materiel.image|split('/')|last) }}" 
+                 alt="Image actuelle" 
+                 class="img-thumbnail"
+                 style="max-width: 200px;">
+            
+            <div class="mt-2">
+                <label class="form-label">Chemin complet :</label>
+                <input type="text" 
+                       class="form-control" 
+                       value="{{ current_image_path }}" 
+                       readonly>
+            </div>
+        </div>
+    {% endif %}
+    
+    {{ form_label(form.image, 'Nouvelle image', {'label_attr': {'class': 'form-label'}}) }}
+    {{ form_widget(form.image, {'attr': {'class': 'form-control'}}) }}
+    <small class="text-muted">
+        Format attendu : Chemin complet système (ex: C:/xampp/htdocs/.../nomfichier.jpg)
+    </small>
+    {{ form_errors(form.image) }}
+</div>
                         <div class="form-group text-center">
-                            {{ form_widget(form.submit, { 'attr': {'class': 'btn-submit w-100'} }) }}
+                            <button type="submit" class="btn btn-success w-100">Enregistrer</button>
                         </div>
 
-                        
-                  
+                        {{ form_end(form) }}
                     </div>
                 </div>
             </div>

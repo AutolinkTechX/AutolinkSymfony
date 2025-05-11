@@ -1,0 +1,262 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Workshop index{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/css/animate.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/css/main.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/css/nivo-lightbox.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/css/slicknav.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/css/line-icons.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/css/responsive.css') }}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('assets/js/workshop.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery-ui.min.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.slicknav.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.nice-select.min.js') }}"></script>
+    <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('assets/js/mixitup.min.js') }}"></script>
+    <script src="{{ asset('assets/js/owl.carousel.min.js') }}"></script>
+    <script src="{{ asset('assets/js/main.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+{% block content %}
+<!-- Header Area wrapper Starts -->
+<header id="header-wrap">
+  <!-- Navbar Start -->
+  <nav class="navbar navbar-expand-lg fixed-top scrolling-navbar">
+    <div class="container">
+      <div class="navbar-header">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+          <span class="icon-menu"></span>
+          <span class="icon-menu"></span>
+          <span class="icon-menu"></span>
+        </button>
+      </div>
+      <div class="collapse navbar-collapse" id="main-navbar">
+        <ul class="navbar-nav mr-auto w-100 justify-content-end">
+          <li class="nav-item active">
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- Navbar End -->
+
+<!-- Section Workshops pour l'utilisateur -->
+<section class="section-padding">
+  <div class="container">
+    <div class="section-title-header text-center mb-4">
+      <h2 class="section-title">Nos Workshops</h2>
+      <p>Découvrez les workshops proposés et inscrivez-vous !</p>
+    </div>
+    <div class="row">
+      {% for workshop in workshops %}
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="about-item p-3 border rounded bg-light">
+            <img src="{{ asset('' ~ workshop.image) }}" alt="{{ workshop.nom }}" width="200" class="mb-2">
+            <div class="about-text">
+              <h3 class="mb-1">{{ workshop.nom }}</h3>
+              <p>{{ workshop.description }}</p>
+              <p><strong>Date :</strong> {{ workshop.DateDebut|date('d M Y H:i') }} - {{ workshop.DateFin|date('H:i') }}</p>
+              <p><strong>Lieu :</strong> {{ workshop.adresse }}</p>
+              <div class="d-flex justify-content-between gap-2 mt-3">
+                <button class="btn btn-custom btn-sm btn-inscription" data-workshop-id="{{ workshop.id }}" data-workshop-nom="{{ workshop.nom }}" data-workshop-date="{{ workshop.DateDebut|date('d M Y H:i') }}" data-workshop-lieu="{{ workshop.adresse }}"><i class="fa fa-user-plus"></i> S'inscrire</button>
+                <a href="{{ path('app_workshop_tasks_client', {'id': workshop.id}) }}" class="btn btn-custom btn-sm"><i class="fa fa-tasks"></i> Voir les tâches</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <p class="text-center">Aucun workshop disponible pour le moment.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Section des événements réalisés avec vidéos et images -->
+<section id="events-gallery" class="section-padding">
+<div class="container">
+<div class="row">
+  <div class="col-12">
+    <div class="section-title-header text-center">
+      <h1 class="section-title wow fadeInUp" data-wow-delay="0.2s">ÉVÉNEMENTS RÉALISÉS</h1>
+      <p>Revivez nos événements passés en images et vidéos !</p>
+    </div>
+  </div>
+</div>
+
+<!-- Galerie des vidéos -->
+<div class="row">
+  <div class="col-12">
+    <div class="section-title-header text-center">
+      <h2 class="sub-title wow fadeInUp" data-wow-delay="0.4s">Nos Vidéos</h2>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <!-- Vidéo 1 -->
+  <div class="col-xs-12 col-md-6 col-lg-4">
+    <div class="video-item">
+      <div class="video-frame">
+        <iframe width="100%" height="100%" src="https://www.youtube.com/embed/YgBuJ9ZYTLs" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      <p class="video-description">Des ateliers pour initier à la réutilisation des objets</p>
+    </div>
+  </div>
+
+  <!-- Vidéo 2 -->
+  <div class="col-xs-12 col-md-6 col-lg-4">
+    <div class="video-item">
+      <div class="video-frame">
+        <iframe width="100%" height="100%" src="https://www.youtube.com/embed/LWFUwYDyUe8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      <p class="video-description">Participation d'Angélique Delahaye à un évènement sur le recyclage et l'économie circulaire</p>
+    </div>
+  </div>
+
+  <!-- Vidéo 3 -->
+  <div class="col-xs-12 col-md-6 col-lg-4">
+    <div class="video-item">
+      <div class="video-frame">
+        <iframe width="100%" height="100%" src="https://www.youtube.com/embed/OsEIO8h3o5U" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      <p class="video-description">Un Avenir Vert : Ateliers Recyclage pour la Génération de Demain</p>
+    </div>
+  </div>
+</div>
+
+<!-- Style CSS -->
+<style>
+  .video-frame {
+    width: 100%;
+    height: 315px;  
+    overflow: hidden; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f7f7f7;  
+    border: 1px solid #ddd;  
+    border-radius: 10px;  
+  }
+
+  iframe {
+    width: 100%;
+    height: 100%; 
+  }
+
+  .video-description {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #333;
+  }
+</style>
+</div>
+</section>
+
+<!-- Modal d'inscription -->
+<div class="modal fade" id="inscriptionModal" tabindex="-1" role="dialog" aria-labelledby="inscriptionModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color: #b5602c; color: #fff;">
+        <h5 class="modal-title" id="inscriptionModalLabel">Inscription au Workshop</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="inscriptionForm">
+          <input type="hidden" id="modalWorkshopId" name="workshop_id">
+          <div class="form-group">
+            <label for="first_name">Nom</label>
+            <input type="text" class="form-control" id="first_name" name="first_name" required>
+          </div>
+          <div class="form-group">
+            <label for="last_name">Prénom</label>
+            <input type="text" class="form-control" id="last_name" name="last_name" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Adresse e-mail</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+          </div>
+          <div class="form-group">
+            <label for="phone">Téléphone</label>
+            <input type="tel" class="form-control" id="phone" name="phone" required>
+          </div>
+          <div id="modalWorkshopDetails" class="mb-2 text-muted small"></div>
+          <button type="submit" class="btn btn-custom w-100">Valider l'inscription</button>
+        </form>
+        <div id="inscriptionSuccess" class="alert alert-success mt-3 d-none">Inscription réalisée avec succès ! Un email de confirmation a été envoyé.</div>
+        <div id="inscriptionError" class="alert alert-danger mt-3 d-none">Erreur lors de l'inscription. Veuillez réessayer.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.btn-custom {
+  background-color: #b5602c;
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.btn-custom:hover {
+  background-color: #9a4f25;
+}
+</style>
+
+<script>
+$(document).ready(function() {
+    // Ouvre le modal et pré-remplit les infos du workshop
+    $(document).on('click', '.btn-inscription', function() {
+        const workshopId = $(this).data('workshop-id');
+        const workshopNom = $(this).data('workshop-nom');
+        const workshopDate = $(this).data('workshop-date');
+        const workshopLieu = $(this).data('workshop-lieu');
+        $('#modalWorkshopId').val(workshopId);
+        $('#modalWorkshopDetails').html('<b>Workshop :</b> ' + workshopNom + '<br><b>Date :</b> ' + workshopDate + '<br><b>Lieu :</b> ' + workshopLieu);
+        $('#inscriptionSuccess').addClass('d-none');
+        $('#inscriptionError').addClass('d-none');
+        $('#inscriptionForm')[0].reset();
+        $('#inscriptionModal').modal('show');
+    });
+
+    // Soumission AJAX du formulaire
+    $('#inscriptionForm').on('submit', function(e) {
+        e.preventDefault();
+        const data = $(this).serialize();
+        $.ajax({
+            url: '/api/inscription',
+            method: 'POST',
+            data: data,
+            success: function(response) {
+                $('#inscriptionSuccess').removeClass('d-none');
+                $('#inscriptionError').addClass('d-none');
+                $('#inscriptionForm')[0].reset();
+            },
+            error: function() {
+                $('#inscriptionSuccess').addClass('d-none');
+                $('#inscriptionError').removeClass('d-none');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

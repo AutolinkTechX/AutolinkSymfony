@@ -13,8 +13,9 @@
         <div class="col-lg-3 col-md-4 col-sm-6 mix en-attente">
             <div class="featured__item">
                 <div class="featured__item__pic">
-                    {% if accord.materielRecyclable.image %}
-                        <img src="{{ asset('/uploads/' ~ accord.materielRecyclable.image) }}" 
+                    {% if accord.materielRecyclable.image is not empty %}
+                        {% set imagePath = accord.materielRecyclable.image|replace({'\\': '/'}) %}
+                        <img src="{{ asset('uploads/' ~ imagePath|split('/')|last) }}" 
                              alt="{{ accord.materielRecyclable.name }}" 
                              class="img-fluid" style="max-width: 100px;">
                     {% else %}
@@ -31,14 +32,11 @@
                     <p><strong>Statut :</strong> <span class="badge bg-warning">En attente</span></p>
 
                     <div class="featured__item__actions">
-                        <!-- Bouton Accepter -->
                         <a href="{{ path('accord_accepter', {'id': accord.id}) }}" 
                            class="btn btn-success btn-sm"
                            onclick="return confirm('Êtes-vous sûr de vouloir accepter cet accord ?');">
                            Accepter
                         </a>
-
-                        <!-- Bouton Refuser -->
                         <a href="{{ path('accord_refuser', {'id': accord.id}) }}" 
                            class="btn btn-danger btn-sm"
                            onclick="return confirm('Êtes-vous sûr de vouloir refuser cet accord ?');">

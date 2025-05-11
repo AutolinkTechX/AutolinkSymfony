@@ -25,8 +25,17 @@ class Accord
     #[ORM\Column(length: 255)]
     private ?string $output = null;
 
-    #[ORM\OneToOne(targetEntity: MaterielRecyclable::class, cascade: ['persist', 'remove'])]
+    /*#[ORM\OneToOne(targetEntity: MaterielRecyclable::class, cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(name: "materiel_recyclable_id", referencedColumnName: "id", onDelete: "CASCADE")]
+    private ?MaterielRecyclable $materielRecyclable = null;*/
+
+
+    #[ORM\OneToOne(targetEntity: MaterielRecyclable::class)] // Retirer 'remove' de cascade
+    #[ORM\JoinColumn(
+        name: "materiel_recyclable_id", 
+        referencedColumnName: "id", 
+        onDelete: "CASCADE" // ✅ Supprime l'accord si le matériel est supprimé
+    )]
     private ?MaterielRecyclable $materielRecyclable = null;
 
     #[ORM\ManyToOne(targetEntity: Entreprise::class)]
@@ -103,4 +112,7 @@ class Accord
         $this->entreprise = $entreprise;
         return $this;
     }
+
+
+    
 }

@@ -45,6 +45,13 @@ class MaterielRecyclable
     #[ORM\ManyToOne(inversedBy: 'materielRecyclables')]
     private ?User $user = null;
 
+    
+    /*#[ORM\OneToOne(mappedBy: 'materielRecyclable', targetEntity: Accord::class)]
+    private ?Accord $accord = null;*/
+
+    #[ORM\OneToOne(mappedBy: 'materielRecyclable', targetEntity: Accord::class, cascade: ['remove'])] // ✅ Supprime l'accord si le matériel est supprimé
+    private ?Accord $accord = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -143,6 +150,20 @@ class MaterielRecyclable
     {
         $this->user = $user;
 
+        return $this;
+    }
+
+
+
+    // Add getter and setter
+    public function getAccord(): ?Accord
+    {
+        return $this->accord;
+    }
+
+    public function setAccord(?Accord $accord): self
+    {
+        $this->accord = $accord;
         return $this;
     }
 }

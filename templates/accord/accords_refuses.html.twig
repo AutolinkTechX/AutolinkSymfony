@@ -5,36 +5,37 @@
 {% block content %}
 <h1>Accords Refusés</h1>
 
-{% if materiels is empty %}
-    <p>Aucun accord accepté.</p>
+{% if accords is empty %}
+    <p>Aucun accord refusé.</p>
 {% else %}
     <div class="row featured__filter">
-        {% for materiel in materiels %}
-        <div class="col-lg-3 col-md-4 col-sm-6 mix valide">
-            <div class="featured__item">
-                <div class="featured__item__pic">
-                    {% if materiel.image %}
-                        <img src="{{ asset('/uploads/' ~ materiel.image) }}" 
-                             alt="{{ materiel.name }}" 
-                             class="img-fluid" style="max-width: 100px;">
-                    {% else %}
-                        <p>No Image</p>
-                    {% endif %}
-                </div>
-                <div class="featured__item__text">
-                    <h6>{{ materiel.name }}</h6>
-                   
-                    <p><strong>Client :</strong> {{ materiel.user.name }}</p>
-                    <p><strong>Type de matériel :</strong> {{ materiel.typemateriel }}</p>
-                    <p><strong>Date de Création :</strong> {{ materiel.dateCreation|date('d/m/Y H:i') }}</p>
-                    <p><strong>Statut :</strong> <span class="badge bg-danger">Refusé</span></p>
-                    <a href="{{ path('accord_delete', {'id': materiel.id}) }}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet élément ?');"><i class="fa fa-trash"></i></a>
-                    
+        {% for accord in accords %}
+            {% set materiel = accord.materielRecyclable %}
+            <div class="col-lg-3 col-md-4 col-sm-6 mix valide">
+                <div class="featured__item">
+                    <div class="featured__item__pic">
+                        {% if accord.materielRecyclable.image is not empty %}
+                        {% set imagePath = accord.materielRecyclable.image|replace({'\\': '/'}) %}
+                        <img src="{{ asset('uploads/' ~ imagePath|split('/')|last) }}" 
+                                 alt="{{ materiel.name }}" 
+                                 class="img-fluid" style="max-width: 100px;">
+                        {% else %}
+                            <p>Aucune image</p>
+                        {% endif %}
+                    </div>
+                    <div class="featured__item__text">
+                        <h6>{{ materiel.name }}</h6>
+                        <p><strong>Client :</strong> {{ materiel.user.name }}</p>
+                        <p><strong>Type de matériel :</strong> {{ materiel.typeMateriel }}</p>
+                        <p><strong>Date de création :</strong> {{ materiel.datecreation|date('d/m/Y H:i') }}</p>
+                        <a href="{{ path('accord_delete', {'id': accord.id}) }}" 
+                           onclick="return confirm('Confirmer la suppression ?')">
+                            <i class="fa fa-trash"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
         {% endfor %}
     </div>
 {% endif %}
-
 {% endblock %}

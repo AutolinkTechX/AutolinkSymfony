@@ -66,6 +66,7 @@ class MaterielRecyclableType extends AbstractType
                         'mimeTypes' => [
                             'image/jpeg',
                             'image/png',
+                            'image/jpg',
                         ],
                         'mimeTypesMessage' => 'Please upload a valid JPEG or PNG file',
                     ]),

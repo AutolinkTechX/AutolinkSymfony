@@ -27,39 +27,14 @@
     <link rel="stylesheet" href="{{ asset('css/owl.carousel.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/slicknav.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <!DOCTYPE html>
+<html>
+<head>
+    <!-- Styles -->
     <style>
         .content-push {
-            min-height: calc(100vh - 250px); /* Adjust the height to ensure the footer is not overlapped */
-            padding-top: 90px; /* Add padding at the top to avoid overlap with the header */
-        }
-        .header__cart .dropdown-menu {
-            display: none;
-            position: absolute;
-            right: 0;
-            top: 100%; /* Position the dropdown below the icon */
-            padding-left: 0; /* Remove default left padding */
-        }
-        .header__cart .dropdown:hover .dropdown-menu {
-            display: block;
-        }
-        .header__cart ul {
-            margin-left: -90px; /* Adjust this value to move the icons to the left */
-        }
-        .header__cart ul li {
-            margin-right: 5px; /* Add some space between the icons */
-        }
-        .dropdown-menu .dropdown-item {
-            padding-left: 15px; /* Ensure consistent padding for alignment */
-        }
-        .header__cart .user-profile {
-            display: flex;
-            align-items: center;
-        }
-        .header__cart .user-profile img {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            margin-right: 5px;
+            min-height: calc(100vh - 250px);
+            padding-top: 90px;
         }
 
         /* Header Styles */
@@ -70,9 +45,70 @@
             z-index: 1000;
             transition: background 0.3s;
         }
+
         .site-header.header-scrolled {
             background: rgba(255, 255, 255, 0.8);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Cart Section */
+        .header__cart ul {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            height: 100%;
+        }
+
+        .header__cart ul li {
+            margin-left: 25px;
+            position: relative;
+        }
+
+        .header__cart .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            min-width: 200px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header__cart .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .header__cart .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .header__cart .user-profile img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .header__cart a {
+            color: #333;
+            font-size: 16px;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .header__cart a:hover {
+            color: #b5602c;
+        }
+
+        /* Navigation Alignment */
+        .col-lg-2.header__cart-column {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            height: 100%;
         }
     </style>
     {% block stylesheets %}{% endblock %}
@@ -80,12 +116,13 @@
 <body>
     <header class="site-header">
         <div class="container">
-            <div class="row">
+            <div class="row align-items-center">
                 <div class="col-lg-2">
                     <div class="header__logo">
                         <a href="#"><img src="{{ asset('img/logo.jpg') }}" alt="Logo"></a>
                     </div>
                 </div>
+                
                 <div class="col-lg-8">
                     <nav class="header__menu">
                         <ul>
@@ -93,105 +130,290 @@
                             <li><a href="{{ path('app_listarticle') }}">Liste de produits</a></li>
                             <li><a href="#">Pages</a>
                                 <ul class="header__menu__dropdown">
-
                                     <li><a href="{{ path('ajouter_materiel_recyclable') }}">Ajouter produit</a></li>
                                     <li><a href="{{ path('app_workshop_inscrit') }}">Workshop</a></li>
-                                    
                                 </ul>
                             </li>
                             <li><a href="{{ path('app_blog_index_user') }}">Blog</a></li>
-                            <li><a href="#">Contact</a></li>
-                            <li><a href="{{ path('entreprise_login') }}">Business pro</a></li>
+                           
+                             <li><a href="{{ path('entreprise_login') }}" class="nav-link">Business pro</a></li>
                         </ul>
                     </nav>
                 </div>
-                <div class="col-lg-2">
+
+                <div class="col-lg-2 header__cart-column">
                     <div class="header__cart">
-                        <ul class="d-flex align-items-center">
-                            <li><a href="{{ path('app_favorie') }}" aria-label="Favoris"><i class="fa fa-heart"></i></a></li>
-                            <li><a href="{{ path('app_commande') }}" aria-label="Panier"><i class="fa fa-shopping-bag"></i></a></li>
+                        <ul>
+                            
+                            <li><a href="{{ path('app_favorie') }}"><i class="fa fa-heart"></i></a></li>
+                            <li><a href="{{ path('app_commande') }}"><i class="fa fa-shopping-bag"></i></a></li>
                             {% if app.user %}
-                                <li><a href="{{ path('factures_index') }}" aria-label="Facture"><i class="fa fa-file-invoice"></i></a></li>
+                                <li><a href="{{ path('factures_index') }}"><i class="fa fa-file-invoice"></i></a></li>
                             {% endif %}
                             <li class="dropdown">
-                                <a href="#" id="userDropdown" class="dropdown-toggle user-profile" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    {% if app.user is not null %}
+                                <a href="#" class="user-profile dropdown-toggle" data-bs-toggle="dropdown">
+                                    {% if app.user %}
                                         {% if app.user.imagePath %}
-                                            <img src="{{ asset('uploads/' ~ app.user.imagePath) }}" alt="Profile Image">
+                                            <img src="{{ asset('uploads/' ~ app.user.imagePath) }}" alt="Profile">
                                         {% else %}
-                                            <i class="fa fa-user" aria-hidden="true"></i>
+                                            <i class="fa fa-user"></i>
                                         {% endif %}
                                     {% else %}
-                                        <i class="fa fa-user" aria-hidden="true"></i>
+                                        <i class="fa fa-user"></i>
                                     {% endif %}
                                 </a>
-                                <ul class="dropdown-menu" aria-labelledby="userDropdown">
-                                    {% if app.user is not null %}
+                                <ul class="dropdown-menu">
+                                    {% if app.user %}
                                         <li><a class="dropdown-item" href="{{ path('profile') }}">Profile</a></li>
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" href="{{ path('app_logout') }}">Logout</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('app_logout') }}">Déconnexion</a></li>
                                     {% else %}
-                                        <li><a class="dropdown-item" href="{{ path('login') }}">Login</a></li>
-                                        <li><a class="dropdown-item" href="{{ path('create_account') }}">Register</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('login') }}">Connexion</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('create_account') }}">Inscription</a></li>
                                     {% endif %}
                                 </ul>
                             </li>
                         </ul>
                     </div>
                 </div>
-            </div>
-            <div class="humberger__open">
-                <i class="fa fa-bars"></i>
             </div>
         </div>
     </header>
     <main class="content-push">
         {% block body %}{% endblock %}
     </main>
-    <!-- Footer Section Begin -->
-    <footer class="footer spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-3 col-md-6 col-sm-6">
-                    <div class="footer__about">
-                        <div class="footer__about__logo">
-                            <a href="#"><img src="{{ asset('img/logo.jpg') }}" alt=""></a>
-                        </div>
+   <footer class="footer">
+    <div class="container">
+        <div class="footer__main-content">
+            {# Logo #}
+            <div class="footer__logo">
+                <a href="{{ path('app_home') }}">
+                    <img src="{{ asset('img/logo.jpg') }}" alt="AutoLink Logo" loading="lazy" >
+                </a>
+            </div>
+
+            {# Contenu aligné #}
+            <div class="footer__content-grid">
+                {# Section Coordonnées #}
+                <div class="footer__contact">
+                    <ul>
+                        <li><strong>AutoLink</strong></li>
+                        <li>Pôle Technologique - El Ghazala</li>
+                        <li>Téléphone : 216 48 004 881</li>
+                        <li>Email : {{ contact_email|default('contact@autolink.tn') }}</li>
+                    </ul>
+                </div>
+
+                {# Liens Utiles et Newsletter #}
+                <div class="footer__right-sections">
+                    {# Liens Utiles #}
+                    <div class="footer__links">
+                        <h3>Liens Utiles</h3>
                         <ul>
-                            <li>AutoLink</li>
-                            <li>Pôle Technologique - El Ghazala.</li>
-                            <li>Téléphone : +216 48 004 881</li>
-                            <li>Email : contact@AutoLink.com</li>
+                            <li><a href="#">Home</a></li>
+                            <li><a href="#">Liste de produits</a></li>
+                            <li><a href="#">Produits recyclables</a></li>
+                            <li><a href="#">Workshops</a></li>
+                            <li><a href="#">Blogs</a></li>
+                            <li><a href="#">Partenaire</a></li>
                         </ul>
                     </div>
-                </div>
-                <div class="col-lg-4 col-md-6 col-sm-6 offset-lg-1">
-                    <div class="footer__widget">
-                        <h6>Liens Utiles</h6>
-                        <ul>
-                            <li><a href="#">À Propos de Nous</a></li>
-                            <li><a href="#">À Propos de Notre Boutique</a></li>
-                            <li><a href="#">Achats Sécurisés</a></li>
-                            <li><a href="#">Informations de Livraison</a></li>
-                            <li><a href="#">Politique de Confidentialité</a></li>
-                            <li><a href="#">Notre Sitemap</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-12">
-                    <div class="footer__widget">
-                        <h6>Rejoignez Notre Newsletter Maintenant</h6>
+
+                    {# Newsletter #}
+                    <div class="footer__newsletter">
+                        <h3>Newsletter</h3>
                         <p>Recevez des mises à jour par e-mail sur notre dernière boutique et nos offres spéciales.</p>
-                        <form action="#">
-                            <input type="text" placeholder="Entrez votre e-mail">
-                            <button type="submit" class="site-btn">S'abonner</button>
+                        <form action="#" method="post">
+                            <input type="email" name="email" placeholder="Entrez votre e-mail" required>
+                            <button type="submit">S'abonner</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-    </footer>
+
+        {# Copyright #}
+        <div class="footer__copyright">
+             <span>Copyright &copy; Autolink 2025</span>
+        </div>
+    </div>
+</footer>
+
+<style>
+    /* Styles généraux */
+    .footer {
+        background: #f8f9fa;
+        padding: 4rem 0 0;
+        margin-top: auto;
+        font-family: 'Arial', sans-serif;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+
+    /* Logo */
+    .footer__logo img {
+        width: 130px;
+        height: auto;
+        margin-bottom: 2rem;
+        transition: transform 0.3s ease;
+    }
+
+    .footer__logo:hover img {
+        transform: scale(1.05);
+    }
+
+    /* Grille de contenu */
+    .footer__content-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 4rem;
+        align-items: start;
+    }
+
+    /* Section Contact */
+    .footer__contact ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .footer__contact li:first-child {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 1.2rem;
+        color: #2c3e50;
+    }
+
+    .footer__contact li {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 0.8rem;
+        color: #4a5568;
+    }
+
+    /* Sections Droites */
+    .footer__right-sections {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        gap: 3rem;
+        margin-top: 0.8rem;
+    }
+
+    /* Liens Utiles */
+    .footer__links h3 {
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        color: #2c3e50;
+        font-weight: bold;
+    }
+
+    .footer__links ul {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+
+    .footer__links li {
+        margin-bottom: 0.7rem;
+    }
+
+    .footer__links a {
+        color: #4a5568;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
     
+
+    /* Newsletter */
+    .footer__newsletter h3 {
+        font-size: 1.1rem;
+        margin-bottom: 1.2rem;
+        color: #2c3e50;
+        font-weight: bold;
+    }
+
+    .footer__newsletter p {
+        font-size: 0.95rem;
+        color: #718096;
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+    }
+
+    .footer__newsletter form {
+        display: flex;
+        gap: 1rem;
+        max-width: 500px;
+    }
+
+    .footer__newsletter input {
+        flex: 1;
+        padding: 0.8rem 1.2rem;
+        border: 2px solid #cbd5e0;
+        border-radius: 30px;
+        font-size: 0.9rem;
+    }
+
+    .footer__newsletter button {
+        background: #b5602c;
+        color: white;
+        padding: 0.8rem 2rem;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .footer__newsletter button:hover {
+        background: #b5602c;
+        transform: translateY(-1px);
+    }
+
+    /* Copyright */
+    .footer__copyright {
+        margin-top: 4rem;
+        padding: 2rem 0;
+        border-top: 1px solid #e2e8f0;
+        text-align: center;
+    }
+
+    .footer__copyright p {
+        font-size: 0.85rem;
+        color: #718096;
+        margin: 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .footer__content-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .footer__right-sections {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .footer__newsletter form {
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .footer__logo img {
+            width: 110px;
+        }
+
+        .footer__contact li:first-child {
+            font-size: 1.1rem;
+        }
+    }
+</style>
     <!-- JavaScript Plugins -->
     <script src="{{ asset('js/jquery-3.3.1.min.js') }}"></script>
     <script src="{{ asset('js/bootstrap.min.js') }}"></script>

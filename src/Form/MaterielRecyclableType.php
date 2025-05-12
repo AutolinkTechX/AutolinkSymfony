@@ -44,7 +44,7 @@ class MaterielRecyclableType extends AbstractType
                     'Plastique' => 'plastique',
                     'Électronique' => 'electronique',
                     'Caoutchouc' => 'caoutchouc',
-                    'Aluminium' => 'aluminium',
+                    'Aluminium' => ' aliminium',
                     'Verre' => 'verre',
                     'Cuivre' => 'cuivre',
                 ],

@@ -46,8 +46,11 @@ class MaterielRecyclableEditType extends AbstractType
          'label' => 'Type de Matériau',
           'choices' => [
             'Plastique' => 'plastique',
-        'Aluminium' => 'aluminium',
-        'Caoutchouc' => 'caoutchouc'
+        'Aluminium' => 'aliminium',
+        'Caoutchouc' => 'caoutchouc',
+        'Électronique' => 'electronique',
+        'Verre' => 'verre',
+        'Cuivre' => 'cuivre',
     ],
            'attr' => ['class' => 'form-select'],
      ])

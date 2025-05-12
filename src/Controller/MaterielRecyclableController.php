@@ -352,7 +352,7 @@ public function edit(
 
 
 
-    #[Route('/admin/editMaterial/{id}', name: 'edit_material_admin')]
+   /* #[Route('/admin/editMaterial/{id}', name: 'edit_material_admin')]
     public function editMaterial(int $id, MaterielRecyclableRepository $materielRepository, Request $request, EntityManagerInterface $entityManager): Response
     {
         $materiel = $materielRepository->find($id);

@@ -13,14 +13,6 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 final class ArticleController extends AbstractController
 {
-    #[Route('/article', name: 'app_article')]
-    public function index(): Response
-    {
-        return $this->render('article/index.html.twig', [
-            'controller_name' => 'ArticleController',
-        ]);
-    }
-
     private string $uploadsDirectory;
 
     public function __construct(string $uploadsDirectory)
@@ -28,159 +20,99 @@ final class ArticleController extends AbstractController
         $this->uploadsDirectory = $uploadsDirectory;
     }
 
-   /* #[Route('/admin/listArticles', name: 'list_articles_admin')]
+    #[Route('/admin/listArticles', name: 'list_articles_admin')]
     public function listArticles(ArticleRepository $articleRepository, Request $request, EntityManagerInterface $entityManager): Response
     {
-        $articles = $articleRepository->findAll();
+        // Pagination
+        $page = $request->query->getInt('page', 1);
+        $pageSize = 3;
 
-        // Create a new article form
+        $query = $articleRepository->createQueryBuilder('a')->getQuery();
+        $paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($query);
+        $totalItems = count($paginator);
+        $pagesCount = ceil($totalItems / $pageSize);
+
+        $query->setFirstResult($pageSize * ($page - 1))
+              ->setMaxResults($pageSize);
+
         $article = new Article();
         $form = $this->createForm(ArticleType::class, $article);
-
-        // Handle form submission
         $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $article = $form->getData();
-            $article->setDatecreation(new \DateTimeImmutable());
 
-            // Handle image upload
-            $file = $form->get('image')->getData();
-            if ($file) {
-                $fileName = md5(uniqid()) . '.' . $file->guessExtension();
-                try {
-                    $file->move($this->uploadsDirectory, $fileName);
-                    $article->setImage($fileName);
-                } catch (FileException $e) {
-                    // Handle file upload error
-                    $this->addFlash('error', 'There was an error uploading your Product image: ' . $e->getMessage());
-                    return $this->redirectToRoute('list_articles_admin');
+        $formErrors = false;
+
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                $article = $form->getData();
+                $article->setDatecreation(new \DateTimeImmutable());
+
+                $file = $form->get('image')->getData();
+                if ($file) {
+                    $fileName = md5(uniqid()) . '.' . $file->guessExtension();
+                    try {
+                        $file->move($this->uploadsDirectory, $fileName);
+
+                        // Stocker le chemin complet
+                        $fullPath = 'file:/C:/Users/ghodb/OneDrive/Bureau/version%20finale%20pi/AutolinkSymfony/public/uploads/' . $fileName;
+                        $article->setImage($fullPath);
+                    } catch (FileException $e) {
+                        $this->addFlash('error', 'Erreur lors du téléchargement de l\'image: ' . $e->getMessage());
+                        return $this->redirectToRoute('list_articles_admin');
+                    }
+                } else {
+                    $article->setImage('default-image.jpg');
                 }
+
+                $entityManager->persist($article);
+                $entityManager->flush();
+
+                $this->addFlash('success', 'Article ajouté avec succès!');
+                return $this->redirectToRoute('list_articles_admin');
             } else {
-                $this->addFlash('error', $article->getNom() . ' was added without an Image!');
-                $article->setImage('default-image.jpg');
+                $formErrors = true;
+                $this->addFlash('error', 'Erreur dans le formulaire');
             }
-            $this->addFlash('success', $article->getNom() . ' was added successfully!');
-
-            $entityManager->persist($article);
-            $entityManager->flush();
-
-            // Redirect back to the list of articles
-            return $this->redirectToRoute('list_articles_admin');
         }
 
         return $this->render('article/list_articles_dashboard.html.twig', [
-            'articles' => $articles,
+            'articles' => $paginator,
             'form' => $form->createView(),
+            'formErrors' => $formErrors,
+            'totalItems' => $totalItems,
+            'pagesCount' => $pagesCount,
+            'currentPage' => $page,
         ]);
-    }*/
-    #[Route('/admin/listArticles', name: 'list_articles_admin')]
-public function listArticles(ArticleRepository $articleRepository, Request $request, EntityManagerInterface $entityManager): Response
-{
-    // Pagination
-    $page = $request->query->getInt('page', 1); // Récupère le numéro de la page depuis l'URL, par défaut 1
-    $pageSize = 3; // Nombre d'articles par page
-
-    // Récupérer les articles paginés
-    $query = $articleRepository->createQueryBuilder('a')
-        ->getQuery();
-
-    $paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($query);
-    $totalItems = count($paginator);
-    $pagesCount = ceil($totalItems / $pageSize);
-
-    $paginator
-        ->getQuery()
-        ->setFirstResult($pageSize * ($page - 1)) // Offset
-        ->setMaxResults($pageSize); // Limit
-
-    // Créer un nouveau formulaire pour l'article
-    $article = new Article();
-    $form = $this->createForm(ArticleType::class, $article);
-
-    // Gérer la soumission du formulaire
-    $form->handleRequest($request);
-    $formErrors = false; // Initialisation de la variable formErrors
-
-    if ($form->isSubmitted()) {
-        if ($form->isValid()) {
-            $article = $form->getData();
-            $article->setDatecreation(new \DateTimeImmutable());
-
-            // Gérer l'upload de l'image
-            $file = $form->get('image')->getData();
-            if ($file) {
-                $fileName = md5(uniqid()) . '.' . $file->guessExtension();
-                try {
-                    $file->move($this->uploadsDirectory, $fileName);
-                    $article->setImage($fileName);
-                } catch (FileException $e) {
-                    // Gérer l'erreur d'upload
-                    $this->addFlash('error', 'There was an error uploading your Product image: ' . $e->getMessage());
-                    return $this->redirectToRoute('list_articles_admin');
-                }
-            } else {
-                $this->addFlash('error', $article->getNom() . ' was added without an Image!');
-                $article->setImage('default-image.jpg');
-            }
-            $this->addFlash('success', $article->getNom() . ' was added successfully!');
-
-            $entityManager->persist($article);
-            $entityManager->flush();
-
-            // Rediriger vers la liste des articles
-            return $this->redirectToRoute('list_articles_admin');
-        } else {
-            // Si le formulaire est soumis mais non valide, nous définissons formErrors à true
-            $formErrors = true;
-            $this->addFlash('error', 'Il y a un erreur de saisie dans la formulaire.');
-        }
     }
-
-    return $this->render('article/list_articles_dashboard.html.twig', [
-        'articles' => $paginator, // Passer les articles paginés au template
-        'form' => $form->createView(),
-        'formErrors' => $formErrors, // Passer la variable formErrors à Twig
-        'totalItems' => $totalItems, // Passer le nombre total d'articles
-        'pagesCount' => $pagesCount, // Passer le nombre total de pages
-        'currentPage' => $page, // Passer la page actuelle
-    ]);
-}
-
 
     #[Route('/admin/editArticle/{id}', name: 'edit_article_admin')]
     public function editArticle(int $id, ArticleRepository $articleRepository, Request $request, EntityManagerInterface $entityManager): Response
     {
-        // Retrieve the article to be edited
         $article = $articleRepository->find($id);
         if (!$article) {
-            throw $this->createNotFoundException('The article does not exist.');
+            throw $this->createNotFoundException('Article non trouvé');
         }
 
-        // Create an edit form for the article
         $form = $this->createForm(ArticleType::class, $article);
-
-        // Handle form submission
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
-            $article = $form->getData();
-            // Handle image upload
             $file = $form->get('image')->getData();
             if ($file) {
                 $fileName = md5(uniqid()) . '.' . $file->guessExtension();
                 try {
                     $file->move($this->uploadsDirectory, $fileName);
-                    $article->setImage($fileName);
+
+                    // Stocker le chemin complet
+                    $fullPath = 'file:/C:/Users/ghodb/OneDrive/Bureau/version%20finale%20pi/AutolinkSymfony/public/uploads/' . $fileName;
+                    $article->setImage($fullPath);
                 } catch (FileException $e) {
-                    // Handle file upload error
-                    $this->addFlash('error', 'There was an error uploading your Product image: ' . $e->getMessage());
+                    $this->addFlash('error', 'Erreur lors du téléchargement de l\'image');
                     return $this->redirectToRoute('list_articles_admin');
                 }
             }
-            // Debug: Check the article before persisting
-            $this->addFlash('success', 'Updating Article: ' . $article->getNom() . ' - Image: ' . $article->getImage());
-            $entityManager->persist($article);
+
             $entityManager->flush();
-            // Redirect back to the list of articles
+            $this->addFlash('success', 'Article mis à jour avec succès');
             return $this->redirectToRoute('list_articles_admin');
         }
 
@@ -195,11 +127,12 @@ public function listArticles(ArticleRepository $articleRepository, Request $requ
     {
         $article = $entityManager->getRepository(Article::class)->find($id);
         if (!$article) {
-            throw $this->createNotFoundException('Article non existant');
+            throw $this->createNotFoundException('Article non trouvé');
         }
+
         $entityManager->remove($article);
         $entityManager->flush();
-        $this->addFlash('success', $article->getNom() . " has been successfully removed!");
+        $this->addFlash('success', 'Article supprimé avec succès');
         return $this->redirectToRoute('list_articles_admin');
     }
 }

@@ -1,8 +1,9 @@
-{% extends 'base.html.twig' %}
+{% extends 'baseAdmin.html.twig' %}
 
-{% block title %}Create your blog here{% endblock %}
+{% block title %}Blog Posts{% endblock %}
 
 {% block stylesheets %}
+    {{ parent() }}
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -144,23 +145,18 @@
     </style>
 {% endblock %}
 
-{% block body %}
-    <div class="logo-container">
-        <img src="{{ asset('img/logo.jpg') }}" alt="Logo">
-    </div>
-    
+{% block content %}
     <div class="container">
         <h1>Create your blog here</h1>
 
         <div class="blog-grid">
             {% for blog in blogs %}
                 <div class="blog-card">
-{% if blog.image %}
-    <img src="{{ asset('uploads/' ~ blog.image) }}" alt="Blog Image">
-{% else %}
-    <img src="{{ asset('uploads/default.jpg') }}" alt="Default Image">
-{% endif %}
-
+                    {% if blog.image %}
+                        <img src="{{ asset('uploads/' ~ blog.image) }}" alt="Blog Image">
+                    {% else %}
+                        <img src="{{ asset('uploads/default.jpg') }}" alt="Default Image">
+                    {% endif %}
 
                     <h3>{{ blog.title }}</h3>
                     <p>{{ blog.content|slice(0, 100) }}...</p> 
@@ -186,6 +182,10 @@
 
         <a href="{{ path('app_blog_new') }}" class="btn">Create New</a>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {

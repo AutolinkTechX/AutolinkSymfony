@@ -1,18 +1,108 @@
-{% extends 'base.html.twig' %}
+{% extends 'baseAdmin.html.twig' %}
 
 {% block title %}New Blog{% endblock %}
 
-{% block body %}
-    <h1>Create new Blog</h1>
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .new-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #b5602c;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+        
+        .btn {
+            background-color: #b5602c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        
+        .form-actions {
+            margin-top: 30px;
+        }
+    </style>
+{% endblock %}
 
-    {{ include('blog/_form.html.twig') }}
+{% block content %}
+    <div class="new-container">
+        <h1>Create new Blog Post</h1>
 
-    <a href="{{ path('app_blog_index') }}">back to list</a>
-    {% if app.request.get('uploadedImage') %}
-    <script>
-        let imagePath = "{{ asset('uploads/' ~ app.request.get('uploadedImage')) }}";
-        console.log("Uploaded Image Path:", imagePath);
-    </script>
-{% endif %}
+        {{ form_start(form) }}
+            <div class="form-group">
+                {{ form_label(form.title) }}
+                {{ form_widget(form.title, {'attr': {'placeholder': 'Enter blog title'}}) }}
+                {{ form_errors(form.title) }}
+            </div>
 
+            <div class="form-group">
+                {{ form_label(form.content) }}
+                {{ form_widget(form.content, {'attr': {'placeholder': 'Write your blog content here...'}}) }}
+                {{ form_errors(form.content) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.image) }}
+                {{ form_widget(form.image) }}
+                {{ form_errors(form.image) }}
+                <small class="text-muted">Upload an image for your blog (optional)</small>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn">Create</button>
+                <a href="{{ path('app_blog_index') }}" class="btn btn-secondary">Back to list</a>
+            </div>
+        {{ form_end(form) }}
+
+        {% if app.request.get('uploadedImage') %}
+            <script>
+                let imagePath = "{{ asset('uploads/' ~ app.request.get('uploadedImage')) }}";
+                console.log("Uploaded Image Path:", imagePath);
+                // Vous pouvez ajouter ici une notification de succès si nécessaire
+                alert('Blog created successfully with image: ' + imagePath);
+            </script>
+        {% endif %}
+    </div>
 {% endblock %}

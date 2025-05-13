@@ -151,7 +151,7 @@
                                 <li><a href="{{ path('factures_index') }}"><i class="fa fa-file-invoice"></i></a></li>
                             {% endif %}
                             <li class="dropdown">
-                                <a href="#" class="user-profile dropdown-toggle" data-bs-toggle="dropdown">
+                                <a href="#" class="user-profile dropdown-toggle"  data-bs-display="static">
                                     {% if app.user %}
                                         {% if app.user.imagePath %}
                                             <img src="{{ asset('uploads/' ~ app.user.imagePath) }}" alt="Profile">
@@ -165,7 +165,7 @@
                                 <ul class="dropdown-menu">
                                     {% if app.user %}
                                         <li><a class="dropdown-item" href="{{ path('profile') }}">Profile</a></li>
-                                        <li><hr class="dropdown-divider"></li>
+                                        
                                         <li><a class="dropdown-item" href="{{ path('app_logout') }}">Déconnexion</a></li>
                                     {% else %}
                                         <li><a class="dropdown-item" href="{{ path('login') }}">Connexion</a></li>

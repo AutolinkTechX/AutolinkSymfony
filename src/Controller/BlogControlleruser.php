@@ -38,6 +38,11 @@ class BlogControlleruser extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Définir la date de publication à maintenant si elle n'est pas déjà définie
+            if ($blog->getPublishedDate() === null) {
+                $blog->setPublishedDate(new \DateTime());
+            }
+
             $imageFile = $form->get('image')->getData();
         
             if ($imageFile) {
@@ -48,7 +53,7 @@ class BlogControlleruser extends AbstractController
                         $this->getParameter('uploads_directory'),
                         $newFilename
                     );
-                    $blog->setImage($newFilename); // Save filename in DB
+                    $blog->setImage($newFilename);
                 } catch (FileException $e) {
                     return new Response("Erreur lors de l'upload : " . $e->getMessage());
                 }
@@ -58,11 +63,10 @@ class BlogControlleruser extends AbstractController
             $entityManager->flush();
         
             return $this->redirectToRoute('app_blog_index', [
-                'uploadedImage' => $newFilename, // Pass filename to Twig
+                'uploadedImage' => $newFilename ?? null,
             ]);
         }
         
-
         return $this->render('blog/new.html.twig', [
             'blog' => $blog,
             'form' => $form,
@@ -77,23 +81,59 @@ class BlogControlleruser extends AbstractController
         ]);
     }
 
+   
     #[Route('/{id}/edit', name: 'app_blog_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Blog $blog, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createForm(Bloguser::class, $blog);
-        $form->handleRequest($request);
+public function edit(Request $request, Blog $blog, EntityManagerInterface $entityManager): Response
+{
+    $form = $this->createForm(Bloguser::class, $blog);
+    $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+    if ($form->isSubmitted() && $form->isValid()) {
+        // Gestion de l'image uploadée
+        $imageFile = $form->get('image')->getData();
 
-            return $this->redirectToRoute('app_blog_index');
+        if ($imageFile) {
+            $newFilename = uniqid() . '.' . $imageFile->guessExtension();
+
+            try {
+                $imageFile->move(
+                    $this->getParameter('uploads_directory'),
+                    $newFilename
+                );
+
+                // Supprimer l'ancienne image si elle existe
+                if ($blog->getImage()) {
+                    $oldImagePath = $this->getParameter('uploads_directory') . '/' . $blog->getImage();
+                    if (file_exists($oldImagePath)) {
+                        unlink($oldImagePath);
+                    }
+                }
+
+                $blog->setImage($newFilename);
+            } catch (FileException $e) {
+                $this->addFlash('error', 'Erreur lors de l\'upload de l\'image : ' . $e->getMessage());
+            }
         }
 
-        return $this->render('blog/edit.html.twig', [
-            'blog' => $blog,
-            'form' => $form,
-        ]);
+        // Vérification de la published_date si null
+        if ($blog->getPublishedDate() === null) {
+            $blog->setPublishedDate(new \DateTime());
+        }
+
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Article mis à jour avec succès.');
+
+        // ✅ Rester sur la page edit pour voir le résultat
+        return $this->redirectToRoute('app_blog_edit', ['id' => $blog->getId()]);
     }
+
+    return $this->render('blog/edit.html.twig', [
+        'blog' => $blog,
+        'form' => $form->createView(),
+    ]);
+}
+
 
     #[Route('/{id}', name: 'app_blog_delete', methods: ['POST'])]
     public function delete(Request $request, Blog $blog, EntityManagerInterface $entityManager): Response
